@@ -18,7 +18,10 @@ source-repository head
   location: git://github.com/jdnavarro/nero.git
 
 library
-  exposed-modules:     Nero
+  exposed-modules:     Nero,
+                       Nero.Response
+                       Nero.Request
+                       Nero.Url
   -- other-modules:       
   build-depends:       base >=4.7 && <4.8,
                        text,

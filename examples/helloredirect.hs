@@ -20,6 +20,12 @@ hello request = request ^? _GET . path . route & \case
                               else Nothing)
 
 main :: IO ()
-main = do print $ hello (dummyRequest & url .~ Url "example.com" "/hello/there/")
-          print $ hello (dummyRequest & url .~ Url "example.com" "/hello/there")
-          print $ hello (dummyRequest & url .~ Url "example.com" "/bye/there")
+main = do print . hello $ dummyRequest
+                        & host .~ "example.com"
+                        & path .~ "/hello/there/"
+          print . hello $ dummyRequest
+                        & host .~ "example.com"
+                        & path .~ "/hello/there"
+          print . hello $ dummyRequest
+                        & host .~ "example.com"
+                        & path .~ "/bye/there"
