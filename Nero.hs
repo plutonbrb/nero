@@ -6,16 +6,19 @@ module Nero
   , dummyRequest
   , Response
   , Path
+  , Url(..)
   , httpOk
+  , httpMovedPermanently
   -- , route
   , _GET
-  , path
+  , HasPath(..)
+  , url
   -- * Re-exports
   , module Control.Lens
   , module Data.Monoid
   ) where
 
---import Control.Applicative (pure)
+import Control.Applicative ((<$>))
 import Data.Monoid ((<>))
 import Control.Lens
   -- ( (^.)
@@ -31,24 +34,31 @@ import Control.Lens
 -- $setup
 -- import Control.Lens
 
-data Request = GET Path
-             | POST Path deriving (Show)
+data Request = GET Url
+             | POST Url deriving (Show)
 
 dummyRequest :: Request
-dummyRequest = GET ""
+dummyRequest = GET $ Url "" ""
 
 type Path = String
+data Url = Url Host Path deriving (Show)
+type Host = String
 
-data Response = OK String deriving (Show)
+data Response = Ok String
+              | MovedPermanently Url
+              deriving (Show)
 
 httpOk :: String -> Response
-httpOk = OK
+httpOk = Ok
+
+httpMovedPermanently :: Url -> Response
+httpMovedPermanently = MovedPermanently
 
 -- |
--- >>> GET "path" ^? _GET
--- Just (GET "path")
+-- >>> GET (Url "example.com" "path") ^? _GET
+-- Just (GET (Url "example.com" "path"))
 --
--- >>> POST "path" ^? _GET
+-- >>> POST (Url "example.com" "path") ^? _GET
 -- Nothing
 _GET :: Prism' Request Request
 _GET = prism' id $ \request -> if isGET request
@@ -59,6 +69,15 @@ isGET :: Request -> Bool
 isGET (GET _) = True
 isGET _       = False
 
-path :: Lens' Request Path
-path f (GET p)  = fmap GET (f p)
-path f (POST p) = fmap POST (f p)
+url :: Lens' Request Url
+url f (GET  u) = GET  <$> f u
+url f (POST u) = POST <$> f u
+
+class HasPath a where
+    path :: Lens' a Path
+
+instance HasPath Url where
+    path f (Url h p) = Url h <$> f p
+
+instance HasPath Request where
+    path = url . path

@@ -6,7 +6,7 @@ import Data.List (stripPrefix)
 
 hello :: Request -> Maybe Response
 hello request = request ^? _GET . path . route <&> \name ->
-    httpOk ("<h1>Hello " <> name <> "</h1>")
+    httpOk $ "<h1>Hello " <> name <> "</h1>"
   where
     route :: Prism' Path String
     route = prism' ("/hello/" <>) (stripPrefix "/hello/")
