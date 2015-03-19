@@ -2,22 +2,18 @@
 {-# LANGUAGE LambdaCase #-}
 module Main where
 
-import Data.List (isSuffixOf, stripPrefix)
 import Nero
 
 hello :: Request -> Maybe Response
-hello request = request ^? _GET . path . route & \case
+hello request = request ^? _GET . path . r & \case
     Just name -> Just $ httpOk ("<h1>Hello " <> name <> "</h1>")
-    Nothing   -> if isn't route (request ^. path <> "/")
+    Nothing   -> if isn't r (request ^. path <> "/")
                     then Nothing
                     else Just . httpMovedPermanently
                               $ request ^. url & path %~ (<> "/")
   where
-    route :: Prism' Path String
-    route = prism' (\name -> "/hello/" <> name <> "/")
-                   (\p' -> if "/" `isSuffixOf` p'
-                              then stripPrefix "/hello/" $ init p'
-                              else Nothing)
+    r :: Prism' Path String
+    r = router "/hello/{name}/"
 
 main :: IO ()
 main = do print . hello $ dummyRequest
