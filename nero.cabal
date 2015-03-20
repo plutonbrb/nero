@@ -19,6 +19,7 @@ source-repository head
 
 library
   exposed-modules:     Nero,
+                       Nero.Application,
                        Nero.Response,
                        Nero.Request,
                        Nero.Routing,

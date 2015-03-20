@@ -7,6 +7,7 @@ module Nero
 import Data.Monoid as X ((<>))
 import Control.Lens as X
 
+import Nero.Application as X
 import Nero.Request as X
 import Nero.Response as X
 import Nero.Routing as X
