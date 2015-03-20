@@ -13,6 +13,9 @@ slashRedirect :: Router a -> (a -> Response) -> Request -> Maybe Response
 slashRedirect r f request =
     case request ^? path . r of
         Just x  -> Just $ f x
-        Nothing -> if isn't r $ request ^. path <> "/"
+        Nothing -> if isn't r aPath
                       then Nothing
-                      else Just . httpMovedPermanently $ request ^. url
+                      else Just . httpMovedPermanently
+                                $ request ^. url & path .~ aPath
+  where
+    aPath = request ^. path <> "/"
