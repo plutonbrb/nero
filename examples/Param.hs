@@ -5,11 +5,11 @@ import Test.Tasty.HUnit ((@?=), testCase)
 import Nero
 
 app1 :: Request -> Maybe Response
-app1 request = request ^? query . ix "name" . traverse <&> \name ->
+app1 request = request ^? param "name" <&> \name ->
     httpOk ("<h1>Hello " <> name <> "</h1>")
 
 app2 :: Request -> Response
-app2 request = request ^. query . ix "name" & \name ->
+app2 request = request ^.. param "name" & \name ->
     httpOk ("<h1>Hello " <> unwords name <> "</h1>")
 
 tests :: TestTree

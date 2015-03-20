@@ -1,3 +1,4 @@
+{-# LANGUAGE RankNTypes #-}
 module Nero.Url
   ( Url
   , Host
@@ -6,6 +7,7 @@ module Nero.Url
   , HasHost(..)
   , HasPath(..)
   , HasQuery(..)
+  , Param(..)
   , dummyUrl
   ) where
 
@@ -40,6 +42,12 @@ class HasQuery a where
 
 instance HasQuery Url where
     query f (Url s h p q) = (\q' -> Url s h p q') <$> f q
+
+class Param a where
+    param :: String -> Traversal' a String
+
+instance Param Url where
+    param k = query . ix k . traverse
 
 dummyUrl :: Url
 dummyUrl = Url Http "" "" Map.empty
