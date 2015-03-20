@@ -12,5 +12,5 @@ hello' = fmap (\name -> httpOk $ "<h1>Hello " <> name <> "</h1>")
        . preview (_GET . route "/hello/{name}")
 
 main :: IO ()
-main = do print $ hello (dummyRequest & path .~ "/hello/there")
-          print $ hello (dummyRequest & path .~ "/bye/there")
+main = do print . hello $ dummyRequest & path .~ "/hello/there"
+          print . hello $ dummyRequest & path .~ "/bye/there"

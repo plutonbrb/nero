@@ -22,6 +22,9 @@ instance HasHost Request where
 instance HasPath Request where
     path = url . path
 
+instance HasQuery Request where
+    query = url . query
+
 -- |
 -- >>> GET dummyUrl ^? _GET
 -- Just (GET (Url "" ""))
