@@ -4,6 +4,7 @@ module Nero
     module X
   ) where
 
+import Control.Applicative as X ((<$>))
 import Data.Monoid as X ((<>))
 import Control.Lens as X
 
