@@ -13,9 +13,9 @@ import Control.Applicative ((<$>))
 import Data.Map as Map
 import Control.Lens
 
-data Url = Url Scheme Host Path Query deriving (Show)
+data Url = Url Scheme Host Path Query deriving (Show,Eq)
 
-data Scheme = Http | Https deriving (Show)
+data Scheme = Http | Https deriving (Show,Eq)
 
 type Path = String
 

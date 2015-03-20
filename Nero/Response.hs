@@ -8,7 +8,7 @@ import Nero.Url
 
 data Response = Ok String
               | MovedPermanently Url
-              deriving (Show)
+              deriving (Show,Eq)
 
 httpOk :: String -> Response
 httpOk = Ok
