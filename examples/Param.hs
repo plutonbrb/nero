@@ -6,15 +6,14 @@ import Test.Tasty (TestTree, defaultMain, testGroup)
 import Test.Tasty.HUnit ((@?=), testCase)
 import Nero
 import Data.Text (unwords)
-import Data.Text.Strict.Lens (utf8)
 
 app1 :: Request -> Maybe Response
 app1 request = request ^? param "name" <&> \name ->
-    httpOk ("<h1>Hello " <> name ^.re utf8 <> "</h1>")
+    httpOk ("<h1>Hello " <> name <> "</h1>")
 
 app2 :: Request -> Response
 app2 request = request ^.. param "name" & \name ->
-    httpOk ("<h1>Hello " <> unwords name ^.re utf8 <> "</h1>")
+    httpOk ("<h1>Hello " <> unwords name <> "</h1>")
 
 tests :: TestTree
 tests = testGroup "HTTP parameters"

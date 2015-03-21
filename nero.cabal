@@ -22,14 +22,15 @@ library
                        Nero.Application,
                        Nero.Response,
                        Nero.Request,
-                       Nero.Routing,
+                       Nero.Match,
                        Nero.Url
   -- other-modules:       
   build-depends:       base >=4.7 && <4.8,
                        bytestring,
+                       containers,
                        text,
                        lens,
-                       containers
+                       safe
   default-language:    Haskell2010
   ghc-options:         -Wall
 

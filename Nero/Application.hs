@@ -7,14 +7,14 @@ import Control.Lens
 
 import Nero.Request
 import Nero.Response
-import Nero.Routing
+import Nero.Match
 import Nero.Url
 
-slashRedirect :: Router a -> (a -> Response) -> Request -> Maybe Response
-slashRedirect r f request =
-    case request ^? path . r of
+slashRedirect :: Match a => Matcher a -> (a -> Response) -> Request -> Maybe Response
+slashRedirect m f request =
+    case request ^? path . m of
         Just x  -> Just $ f x
-        Nothing -> if isn't r aPath
+        Nothing -> if isn't m aPath
                       then Nothing
                       else Just . httpMovedPermanently
                                 $ request ^. url & path .~ aPath

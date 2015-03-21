@@ -29,8 +29,8 @@ instance Param Request where
     param k = url . param k
 
 -- |
--- >>> GET dummyUrl ^? _GET
--- Just (GET dummyUrl)
+-- >>> dummyRequest ^? _GET
+-- Just (GET (Url Http "" "" (fromList [])))
 --
 -- >>> POST dummyUrl ^? _GET
 -- Nothing

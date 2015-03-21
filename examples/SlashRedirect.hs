@@ -4,11 +4,10 @@ module SlashRedirect where
 import Test.Tasty (TestTree, defaultMain, testGroup)
 import Test.Tasty.HUnit ((@?=), testCase)
 import Nero
-import Data.ByteString.Strict.Lens (packedChars)
 
 app :: Request -> Maybe Response
-app request = request ^? _GET >>= slashRedirect (router "/hello/{name}/")
-    (\name -> httpOk $ "<h1>Hello " <> name^.packedChars <> "</h1>")
+app request = request ^? _GET >>= slashRedirect (match $ text_ "/hello/" <> text <> text_ "/")
+    (\name -> httpOk $ "<h1>Hello " <> name <> "</h1>")
 
 tests :: TestTree
 tests = testGroup "SlashRedirect"
