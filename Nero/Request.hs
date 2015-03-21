@@ -30,7 +30,7 @@ instance Param Request where
 
 -- |
 -- >>> GET dummyUrl ^? _GET
--- Just (GET (Url "" ""))
+-- Just (GET dummyUrl)
 --
 -- >>> POST dummyUrl ^? _GET
 -- Nothing
