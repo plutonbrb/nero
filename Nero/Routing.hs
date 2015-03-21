@@ -7,6 +7,7 @@ import Control.Monad (when)
 import Data.Monoid ((<>))
 import Control.Lens
 import Data.List.Lens
+import Data.Text.Strict.Lens (packed, unpacked)
 import Nero.Url
 
 type Router m = Prism' Path m
@@ -15,11 +16,11 @@ class Routeable m where
     router :: String -> Router m
 
 instance Routeable () where
-    router str = prism' (const str) $ \p -> when (str == p) $ pure ()
+    router str = prism' (const $ str^.packed) $ \p -> when (str == p^.unpacked) $ pure ()
 
 instance Routeable String where
-    router str = prism' (\name -> prefix <> name <> suffix)
-                        (preview $ prefixed prefix . suffixed suffix)
+    router str = prism' (\name -> view packed (prefix <> name <> suffix))
+                        (preview (prefixed prefix . suffixed suffix) . view unpacked)
       where
         (prefix, xs) = case break (== '{') str of
                             (_,"") -> error "Missing '{'"

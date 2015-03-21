@@ -4,13 +4,14 @@ module Nero.Response
   , httpMovedPermanently
   ) where
 
+import Data.ByteString (ByteString)
 import Nero.Url
 
-data Response = Ok String
+data Response = Ok ByteString
               | MovedPermanently Url
               deriving (Show,Eq)
 
-httpOk :: String -> Response
+httpOk :: ByteString -> Response
 httpOk = Ok
 
 httpMovedPermanently :: Url -> Response

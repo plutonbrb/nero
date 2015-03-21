@@ -26,6 +26,7 @@ library
                        Nero.Url
   -- other-modules:       
   build-depends:       base >=4.7 && <4.8,
+                       bytestring,
                        text,
                        lens,
                        containers
@@ -58,6 +59,9 @@ test-suite examples
   hs-source-dirs:      examples
   main-is:             test.hs
   build-depends:       base >= 4.7 && <4.8,
+                       bytestring,
+                       text,
+                       lens,
                        nero,
                        tasty,
                        tasty-hunit
