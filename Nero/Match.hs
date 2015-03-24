@@ -13,6 +13,7 @@ module Nero.Match
 import Control.Applicative (pure)
 import Data.Char (isDigit)
 import Data.Foldable (foldl')
+import Data.Monoid ((<>), mempty)
 import Data.Text (Text)
 import qualified Data.Text as T
 import Safe (readMay)
@@ -48,23 +49,30 @@ class Match a where
 
 instance Match Text where
     match pats = prism'
-        (\txt -> v2p pats [ValueText txt])
+        (\txt -> v2p [ValueText txt] pats)
         (\src -> case p2v src pats of
                       [ValueText txt] -> Just txt
                       _ -> Nothing)
 
 instance Match Int where
     match pats = prism'
-        (\n -> v2p pats [ValueInt n])
+        (\n -> v2p [ValueInt n] pats)
         (\src -> case p2v src pats of
                     [ValueInt n] -> Just n
                     _ -> Nothing)
 
+instance Match (Text, Text) where
+    match pats = prism'
+        (\(txt1,txt2) -> v2p [ValueText txt2,ValueText txt1] pats)
+        (\src -> case p2v src pats of
+                      [ValueText txt2,ValueText txt1] -> Just (txt1,txt2)
+                      _ -> Nothing)
+
 instance Match (Text, Int) where
     match pats = prism'
-        undefined
+        (\(txt,n) -> v2p [ValueInt n,ValueText txt] pats)
         (\src -> case p2v src pats of
-                      [ValueInt x,ValueText y] -> Just (y,x)
+                      [ValueInt n,ValueText txt] -> Just (txt,n)
                       _ -> Nothing)
 
 -- TODO: This could be much cleaner and efficient with a parser library.
@@ -115,7 +123,8 @@ folder (vs,src,PatAnyText) p@PatAnyInt =
 
 folder (vs,src,_) PatAnyInt = (vs,src,PatAnyInt)
 
--- | Like 'breakOn' but discards the needle.
+-- | Like 'breakOn' but discards the needle and wraps Maybe when there is no
+-- needle.
 breakOn_ :: Text -> Text -> Maybe (Text,Text)
 breakOn_ pat src =
     let (x,m) = T.breakOn pat src
@@ -123,18 +132,21 @@ breakOn_ pat src =
              Just y -> Just (x,y)
              Nothing -> Nothing
 
+v2p :: [Value] -> Pattern -> Text
+v2p vs0 pats = fst $ foldr go (mempty,vs0) pats
+  where
+    go (PatText txt) (r,vs) = (txt <> r, vs)
+    go _ (r,v:vs) = (valueToText v <> r, vs)
+    go _ (r,[]) = (r,[])
 
-
-v2p :: Pattern -> [Value] -> Text
-v2p _ = undefined
+valueToText :: Value -> Text
+valueToText (ValueText txt) = txt
+valueToText (ValueInt n)    = T.pack $show n
 
 {--
 -- | Splits 'Text' by enclosing characters such that odd indexed elements are
 -- boundaries and even indexed elements are the enclosed items.
 --
--- TODO: Property testing (even, odd)
--- TODO: Does it shortcircuit when malformation?
--- TODO: Don't add last empty text
 -- >>> let spl = splitEnclosed ('{','}')
 -- >>> spl "hello"
 -- ["hello"]
