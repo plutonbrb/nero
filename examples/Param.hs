@@ -7,37 +7,60 @@ import Test.Tasty.HUnit ((@?=), testCase)
 import Nero
 import Data.Text (unwords)
 
+-- | Gets the first value for the `name` param in querystring.
 app1 :: Request -> Maybe Response
-app1 request = request ^? param "name" <&> \name ->
+app1 request = request ^? query . param "name" <&> \name ->
     httpOk ("<h1>Hello " <> name <> "</h1>")
 
+-- | Gets all values for the `name` param in querystring.
 app2 :: Request -> Response
-app2 request = request ^.. param "name" & \name ->
+app2 request = request ^.. query . param "name" & \name ->
+    httpOk ("<h1>Hello " <> unwords name <> "</h1>")
+
+-- | Gets the first value for the `name` param in a form encoded body.
+app3 :: Request -> Maybe Response
+app3 request = request ^? payload . param "name" <&> \name ->
+    httpOk ("<h1>Hello " <> name <> "</h1>")
+
+-- | Gets all values for the `name` param merged from the querystring and
+-- a form encoded body.
+app4 :: Request -> Response
+app4 request = request ^.. param "name" & \name ->
     httpOk ("<h1>Hello " <> unwords name <> "</h1>")
 
 tests :: TestTree
 tests = testGroup "HTTP parameters"
-    [ testGroup "Single value"
+    [ testGroup "Query parameters"
+      [ testGroup "Single value"
         [ testCase "1 value"
-              $ run1 (pure "there")
-            @?= Just (httpOk "<h1>Hello there</h1>")
+            $ app1 (mkReqQ $ pure "there")
+          @?= Just (httpOk "<h1>Hello there</h1>")
         , testCase "First one of 2 values"
-              $ run1 ["out", "there"]
-            @?= Just (httpOk "<h1>Hello out</h1>")
+            $ app1 (mkReqQ ["out", "there"])
+          @?= Just (httpOk "<h1>Hello out</h1>")
         ]
-    , testGroup "Multiple values"
+      , testGroup "Multiple values"
         [ testCase "1 value"
-              $ run2 (pure "there")
-            @?= httpOk "<h1>Hello there</h1>"
+            $ app2 (mkReqQ $ pure "there")
+          @?= httpOk "<h1>Hello there</h1>"
         , testCase "Concatenating 2 values"
-              $ run2 ["out", "there"]
-            @?= httpOk "<h1>Hello out there</h1>"
+            $ app2 (mkReqQ ["out", "there"])
+          @?= httpOk "<h1>Hello out there</h1>"
         ]
+      ]
+    , testGroup "Form parameters"
+      [ testCase "1 value"
+          $ app3 (mkReqF $ pure "there")
+        @?= Just (httpOk "<h1>Hello there</h1>")
+      ]
+    , testCase "Query and form parameters merge"
+        $ app4 (mkReqM (pure "out") (pure "there"))
+      @?= httpOk "<h1>Hello out there</h1>"
     ]
   where
-    run a p = a $ dummyRequest & query . at "name" ?~ p
-    run1 = run app1
-    run2 = run app2
+    mkReqQ p = dummyRequest     & query . at "name" ?~ p
+    mkReqF p = dummyRequestForm & form . at "name" ?~ p
+    mkReqM pq pf = mkReqF pf & query . at "name" ?~ pq
 
 main :: IO ()
 main = defaultMain tests

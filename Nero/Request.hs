@@ -1,20 +1,33 @@
+{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE LambdaCase #-}
 module Nero.Request
   ( Request
   , _GET
-  , isGET
+  , _POST
   , url
   , dummyRequest
+  , dummyRequestForm
   ) where
 
-import Control.Applicative ((<$>))
+import Control.Applicative ((<$>), (<*>), pure)
 import Control.Lens
+import Nero.Payload
+import Nero.Param
 import Nero.Url
 
--- $setup
--- import Control.Lens
-
 data Request = GET Url
-             | POST Url deriving (Show)
+             | POST Url Payload
+               deriving (Show,Eq)
+
+_GET :: Prism' Request Request
+_GET = prism' id $ \case
+    r@GET {} -> Just r
+    _        -> Nothing
+
+_POST :: Prism' Request Request
+_POST = prism' id $ \case
+    r@POST {} -> Just r
+    _         -> Nothing
 
 instance HasHost Request where
     host = url . host
@@ -25,27 +38,26 @@ instance HasPath Request where
 instance HasQuery Request where
     query = url . query
 
+instance Payloaded Request where
+    payload _ (GET u)    = GET  <$> pure u
+    payload f (POST u p) = POST <$> pure u <*> f p
+
 instance Param Request where
-    param k = url . param k
+    param k = params . ix k . traverse
 
--- |
--- >>> dummyRequest ^? _GET
--- Just (GET (Url Http "" "" (fromList [])))
---
--- >>> POST dummyUrl ^? _GET
--- Nothing
-_GET :: Prism' Request Request
-_GET = prism' id $ \request -> if isGET request
-                                  then Just request
-                                  else Nothing
+instance Formed Request where
+    form = payload . form
 
-isGET :: Request -> Bool
-isGET (GET _) = True
-isGET _       = False
+params :: Traversal' Request MultiMap
+params f request@(GET {}) = query f request
+params f (POST u p) = POST <$> query f u <*> form f p
 
 url :: Lens' Request Url
 url f (GET  u) = GET  <$> f u
-url f (POST u) = POST <$> f u
+url f (POST u p) = flip POST p <$> f u
 
 dummyRequest :: Request
 dummyRequest = GET dummyUrl
+
+dummyRequestForm :: Request
+dummyRequestForm = POST dummyUrl dummyPayloadForm

@@ -19,7 +19,7 @@ app1' = httpOk <$> \name -> "<h1>Hello " <> name <> "</h1>"
 
 -- Lens based routing
 app1' :: Request -> Maybe Response
-app1' = request `toMatchOf` _GET . path . prefix "/hello/" . text ""
+app1' = request `matchOf` _GET . path . prefix "/hello/" . text ""
      <&> \name -> httpOk $ "<h1>Hello " <> name <> "</h1>"
 --}
 
@@ -37,7 +37,7 @@ tests = testGroup "Hello"
     , testCase "hello with Int"   $ run2 "/hello/there/4"
                      @?= Just (httpOk "<h1>Hello there 4</h1>")
     , testCase "bye"   $ run1 "/bye/there"
-                    @?= Nothing
+                     @?= Nothing
     ]
   where
     run1 p = app1 $ dummyRequest & path .~ p

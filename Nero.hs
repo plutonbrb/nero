@@ -1,6 +1,5 @@
 module Nero
-  (
-  -- * Re-exports
+  ( -- * Re-exports
     module X
   ) where
 
@@ -9,6 +8,7 @@ import Data.Monoid as X ((<>))
 import Control.Lens as X
 
 import Nero.Application as X
+import Nero.Payload as X
 import Nero.Request as X
 import Nero.Response as X
 import Nero.Match as X

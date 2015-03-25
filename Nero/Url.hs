@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE TypeFamilies #-}
 module Nero.Url
   ( Url
   , Host
@@ -16,8 +16,8 @@ import Control.Applicative ((<$>))
 import Data.Monoid (mempty)
 import Data.ByteString (ByteString)
 import Data.Text (Text)
-import Data.Map as Map
 import Control.Lens
+import Nero.Param
 
 data Url = Url Scheme Host Path Query deriving (Show,Eq)
 
@@ -27,7 +27,7 @@ type Host = ByteString
 
 type Path = Text
 
-type Query = Map Text [Text]
+type Query = MultiMap
 
 class HasHost a where
     host :: Lens' a Host
@@ -45,13 +45,10 @@ class HasQuery a where
     query :: Lens' a Query
 
 instance HasQuery Url where
-    query f (Url s h p q) = (\q' -> Url s h p q') <$> f q
-
-class Param a where
-    param :: Text -> Traversal' a Text
+    query f (Url s h p q) = Url s h p <$> f q
 
 instance Param Url where
-    param k = query . ix k . traverse
+    param k = query . param k
 
 dummyUrl :: Url
-dummyUrl = Url Http mempty mempty Map.empty
+dummyUrl = Url Http mempty mempty mempty
