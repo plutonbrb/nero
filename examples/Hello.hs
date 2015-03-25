@@ -11,11 +11,16 @@ app1 request = request ^? _GET . path . match (text_ "/hello/" <> text)
     <&> \name -> httpOk $ "<h1>Hello " <> name <> "</h1>"
 
 {--
--- Future Applicative Match API?
+-- Applicative Match API?
 app1' :: Request -> Maybe Response
 app1' = httpOk <$> \name -> "<h1>Hello " <> name <> "</h1>"
                <$> "/hello" *> text
                  $ preview (_GET . path)
+
+-- Lens based routing
+app1' :: Request -> Maybe Response
+app1' = request `toMatchOf` _GET . path . prefix "/hello/" . text ""
+     <&> \name -> httpOk $ "<h1>Hello " <> name <> "</h1>"
 --}
 
 app2 :: Request -> Maybe Response
