@@ -1,7 +1,7 @@
-module Nero
-  ( -- * Re-exports
-    module X
-  ) where
+-- | This module centralizes every module exported in the package together
+--   with frequently used functions when writing Nero applications such as the
+--   ones from 'Lens', 'Applicative' or 'Monoid'.
+module Nero (module X) where
 
 import Control.Applicative as X ((<$>), pure)
 import Data.Monoid as X ((<>))
