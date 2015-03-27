@@ -1,17 +1,28 @@
 name:                nero
 version:             0.1
-synopsis:            Grandiose web development
-description:         Grandiose web development
+synopsis:            Lens-based web framework.
+description:
+  This package contains the core utilities of the @Nero@ web application
+  toolkit.
+  .
+  This an intial alpha release with just basic routing and HTTP parameters
+  handling.
+  .
+  Check the <https://github.com/jdnavarro/nero/README.md README> for a more
+  detailed explanation.
 homepage:            https://github.com/jdnavarro/nero
+bug-reports:         https://github.com/jdnavarro/nero/issues
 license:             BSD3
 license-file:        LICENSE
 author:              Danny Navarro
 maintainer:          j@dannynavarro.net
-copyright:           Copyright (C) 2014 Danny Navarro
+stability:           alpha
+copyright:           Copyright (C) 2015 J. Daniel Navarro
 category:            Web
 build-type:          Simple
-extra-source-files:  README.md
 cabal-version:       >=1.10
+tested-with:         GHC==7.8.4
+extra-source-files:  README.md
 
 source-repository head
   type: git
@@ -50,6 +61,7 @@ test-suite examples
   type:                exitcode-stdio-1.0
   hs-source-dirs:      examples
   main-is:             test.hs
+  ghc-options:         -Wall -threaded
   build-depends:       base >= 4.7 && <4.8,
                        bytestring,
                        text,
