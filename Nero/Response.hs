@@ -1,7 +1,7 @@
 module Nero.Response
   ( Response
-  , httpOk
-  , httpMovedPermanently
+  , ok
+  , movedPermanently
   ) where
 
 import Data.ByteString (ByteString)
@@ -12,10 +12,10 @@ import Nero.Url
 
 data Response = Ok ByteString
               | MovedPermanently Url
-              deriving (Show,Eq)
+                deriving (Show,Eq)
 
-httpOk :: Text -> Response
-httpOk = Ok . review utf8
+ok :: Text -> Response
+ok = Ok . review utf8
 
-httpMovedPermanently :: Url -> Response
-httpMovedPermanently = MovedPermanently
+movedPermanently :: Url -> Response
+movedPermanently = MovedPermanently

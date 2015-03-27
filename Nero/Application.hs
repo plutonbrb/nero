@@ -16,7 +16,7 @@ slashRedirect m f request =
         Just x  -> Just $ f x
         Nothing -> if isn't m aPath
                       then Nothing
-                      else Just . httpMovedPermanently
+                      else Just . movedPermanently
                                 $ request ^. url & path .~ aPath
   where
     aPath = request ^. path <> "/"

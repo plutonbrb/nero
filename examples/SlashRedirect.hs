@@ -6,17 +6,18 @@ import Test.Tasty.HUnit ((@?=), testCase)
 import Nero
 
 app :: Request -> Maybe Response
-app request = request ^? _GET >>= slashRedirect (match $ text_ "/hello/" <> text <> text_ "/")
-    (\name -> httpOk $ "<h1>Hello " <> name <> "</h1>")
+app request = request ^? _GET
+          >>= slashRedirect (match $ text_ "/hello/" <> text <> text_ "/")
+                            (\name -> ok $ "<h1>Hello " <> name <> "</h1>")
 
 tests :: TestTree
 tests = testGroup "SlashRedirect"
     [ testCase "withSlash"
           $ run "/hello/there/"
-        @?= Just (httpOk "<h1>Hello there</h1>")
+        @?= Just (ok "<h1>Hello there</h1>")
     , testCase "withoutSlash"
           $ run "/hello/there"
-        @?= Just (httpMovedPermanently $ dummyUrl & path .~ "/hello/there/")
+        @?= Just (movedPermanently $ dummyUrl & path .~ "/hello/there/")
     , testCase "NoMatch"
           $ run "/bye/there"
         @?= Nothing
