@@ -7,7 +7,7 @@ import Nero
 
 app :: Request -> Maybe Response
 app request = request ^? _GET
-          >>= slashRedirect (match $ text_ "/hello/" <> text <> text_ "/")
+          >>= slashRedirect (match $ "/hello/" <> text <> "/")
                             (\name -> ok $ "<h1>Hello " <> name <> "</h1>")
 
 tests :: TestTree

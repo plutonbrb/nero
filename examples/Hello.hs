@@ -7,7 +7,7 @@ import Nero
 import qualified Data.Text as T
 
 app1 :: Request -> Maybe Response
-app1 request = request ^? _GET . path . match (text_ "/hello/" <> text)
+app1 request = request ^? _GET . path . match ("/hello/" <> text)
     <&> \name -> ok $ "<h1>Hello " <> name <> "</h1>"
 
 {--
@@ -25,9 +25,8 @@ app1' = request `matchOf` _GET . path . prefix "/hello/" . text ""
 
 app2 :: Request -> Maybe Response
 app2 request = request ^? _GET . path
-    . match (text_ "/hello/" <> text <> text_ "/" <> int)
-  <&> \(name,id_) -> ok
-    $ "<h1>Hello " <> name <> " " <> T.pack (show (id_::Int)) <> "</h1>"
+    . match ("/hello/" <> text <> "/" <> int) <&> \(name,id_) ->
+        ok $ "<h1>Hello " <> name <> " " <> T.pack (show (id_::Int)) <> "</h1>"
 
 tests :: TestTree
 tests = testGroup "Hello"

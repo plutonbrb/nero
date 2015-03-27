@@ -14,6 +14,7 @@ import Control.Applicative (pure)
 import Data.Char (isDigit)
 import Data.Foldable (foldl')
 import Data.Monoid ((<>), mempty)
+import Data.String (IsString(fromString))
 import Data.Text (Text)
 import qualified Data.Text as T
 import Safe (readMay)
@@ -32,6 +33,9 @@ type Pattern = [Pat]
 data Value = ValueText Text
            | ValueInt  Int
              deriving (Show,Eq)
+
+instance IsString Pattern where
+    fromString = text_ . T.pack
 
 text_ :: Text -> Pattern
 text_ = pure . PatText
