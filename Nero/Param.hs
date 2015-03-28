@@ -6,7 +6,7 @@ module Nero.Param
   ) where
 
 import Data.Monoid ((<>), Monoid, mappend, mempty)
-import Data.Text (Text)
+import Data.Text.Lazy (Text)
 import Data.Map (Map)
 import qualified Data.Map as Map
 import Control.Lens

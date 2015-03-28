@@ -14,7 +14,7 @@ module Nero.Payload
   ) where
 
 import Data.Monoid (mempty)
-import Data.ByteString (ByteString)
+import Data.ByteString.Lazy (ByteString)
 import Control.Lens
 import Nero.Param
 

@@ -4,7 +4,7 @@ module Hello where
 import Test.Tasty (TestTree, defaultMain, testGroup)
 import Test.Tasty.HUnit ((@?=), testCase)
 import Nero
-import qualified Data.Text as T
+import qualified Data.Text.Lazy as T
 
 app1 :: Request -> Maybe Response
 app1 request = request ^? _GET . path . match ("/hello/" <> text)

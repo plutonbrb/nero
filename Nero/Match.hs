@@ -15,8 +15,8 @@ import Data.Char (isDigit)
 import Data.Foldable (foldl')
 import Data.Monoid ((<>), mempty)
 import Data.String (IsString(fromString))
-import Data.Text (Text)
-import qualified Data.Text as T
+import Data.Text.Lazy (Text)
+import qualified Data.Text.Lazy as T
 import Safe (readMay)
 import Control.Lens
 

@@ -5,7 +5,7 @@ import Prelude hiding (unwords)
 import Test.Tasty (TestTree, defaultMain, testGroup)
 import Test.Tasty.HUnit ((@?=), testCase)
 import Nero
-import Data.Text (unwords)
+import Data.Text.Lazy (unwords)
 
 -- | Gets the first value for the `name` param in querystring.
 app1 :: Request -> Maybe Response
