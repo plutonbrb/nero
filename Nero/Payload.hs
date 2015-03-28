@@ -43,9 +43,9 @@ class Body a where
     body :: a -> ByteString
 
 instance Body Payload where
-    body (PayloadText _ b)   = b
+    body (PayloadText _ b) = b
     body (PayloadBinary b) = b
-    body (PayloadForm fo)  = formEncode fo
+    body (PayloadForm fo)  = encodeForm fo
 
 -- * Form url encoded payload
 
@@ -55,8 +55,8 @@ class Formed a where
 instance Formed Payload where
     form = _Form
 
-formEncode :: Form -> ByteString
-formEncode = undefined
+encodeForm :: Form -> ByteString
+encodeForm = encodeMultiMap
 
 _Form :: Prism' Payload Form
 _Form = prism' PayloadForm $ \case

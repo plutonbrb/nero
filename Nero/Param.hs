@@ -1,15 +1,19 @@
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TypeFamilies #-}
 module Nero.Param
   ( MultiMap
   , Param(..)
+  , encodeMultiMap
   ) where
 
 import Data.Monoid ((<>), Monoid, mappend, mempty)
-import Data.Text.Lazy (Text)
+import Data.ByteString.Lazy (ByteString)
+import Data.Text.Lazy (Text, intercalate)
 import Data.Map (Map)
 import qualified Data.Map as Map
 import Control.Lens
+import Data.Text.Lazy.Lens (utf8)
 
 newtype MultiMap = MultiMap { unMultiMap :: Map Text [Text] }
                    deriving (Eq)
@@ -40,3 +44,11 @@ class Param a where
 
 instance Param MultiMap where
     param k = ix k . traverse
+
+encodeMultiMap :: MultiMap -> ByteString
+encodeMultiMap =
+    review utf8
+  . intercalate "&"
+  . Map.foldMapWithKey (map . mappend . flip mappend "=")
+  . unMultiMap
+
