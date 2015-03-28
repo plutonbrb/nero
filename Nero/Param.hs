@@ -8,10 +8,16 @@ module Nero.Param
 import Data.Monoid ((<>), Monoid, mappend, mempty)
 import Data.Text (Text)
 import Data.Map (Map)
+import qualified Data.Map as Map
 import Control.Lens
 
 newtype MultiMap = MultiMap { unMultiMap :: Map Text [Text] }
-                   deriving (Show,Eq)
+                   deriving (Eq)
+
+instance Show MultiMap where
+    show (MultiMap m)
+        | Map.null m = ""
+        | otherwise = show m
 
 instance Monoid MultiMap where
     MultiMap m1 `mappend` MultiMap m2 = MultiMap $ m1 <> m2

@@ -15,21 +15,31 @@ module Nero.Url
   ) where
 
 import Control.Applicative ((<$>))
-import Data.Monoid (mempty)
+import Data.Monoid ((<>), mempty)
 import Data.ByteString (ByteString)
+import qualified Data.ByteString.Char8 as B8
 import Data.Text (Text)
+import qualified Data.Text as T
 import Control.Lens
 import Nero.Param
 
-data Url = Url Scheme Host Path Query deriving (Show,Eq)
+data Url = Url Scheme Host Path Query deriving Eq
 
-data Scheme = Http | Https deriving (Show,Eq)
+data Scheme = Http | Https deriving Eq
+
+instance Show Scheme where
+    show Http  = "http://"
+    show Https = "https://"
 
 type Host = ByteString
 
 type Path = Text
 
 type Query = MultiMap
+
+instance Show Url where
+    show (Url s h p q) =
+        "\"" <> show s <> B8.unpack h <> T.unpack p <> show q <> "\""
 
 class HasUrl a where
     url :: Lens' a Url
