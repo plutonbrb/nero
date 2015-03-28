@@ -5,6 +5,8 @@ module Nero.Url
   , Host
   , Path
   , Query
+  , HasUrl(..)
+  , Urled(..)
   , HasHost(..)
   , HasPath(..)
   , HasQuery(..)
@@ -28,6 +30,12 @@ type Host = ByteString
 type Path = Text
 
 type Query = MultiMap
+
+class HasUrl a where
+    url :: Lens' a Url
+
+class Urled a where
+    urled :: Traversal' a Url
 
 class HasHost a where
     host :: Lens' a Host

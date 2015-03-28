@@ -14,6 +14,10 @@ data Response = Ok ByteString
               | MovedPermanently Url
                 deriving (Show,Eq)
 
+instance Urled Response where
+    urled f (MovedPermanently u) = MovedPermanently <$> f u
+    urled _ response = pure response
+
 ok :: Text -> Response
 ok = Ok . review utf8
 

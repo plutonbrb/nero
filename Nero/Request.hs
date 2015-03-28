@@ -28,6 +28,10 @@ _POST = prism' id $ \case
     r@POST {} -> Just r
     _         -> Nothing
 
+instance HasUrl Request where
+    url f (GET  u) = GET  <$> f u
+    url f (POST u p) = flip POST p <$> f u
+
 instance HasHost Request where
     host = url . host
 
@@ -50,10 +54,6 @@ instance Formed Request where
 params :: Traversal' Request MultiMap
 params f request@(GET {}) = query f request
 params f (POST u p) = POST <$> query f u <*> form f p
-
-url :: Lens' Request Url
-url f (GET  u) = GET  <$> f u
-url f (POST u p) = flip POST p <$> f u
 
 dummyRequest :: Request
 dummyRequest = GET dummyUrl
