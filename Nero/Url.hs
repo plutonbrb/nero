@@ -6,7 +6,7 @@ module Nero.Url
   , Path
   , Query
   , HasUrl(..)
-  , Urled(..)
+  , Location(..)
   , HasHost(..)
   , HasPath(..)
   , HasQuery(..)
@@ -44,8 +44,8 @@ instance Show Url where
 class HasUrl a where
     url :: Lens' a Url
 
-class Urled a where
-    urled :: Traversal' a Url
+class Location a where
+    location :: Traversal' a Url
 
 class HasHost a where
     host :: Lens' a Host

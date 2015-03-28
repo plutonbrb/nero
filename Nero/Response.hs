@@ -21,9 +21,9 @@ data Response = Ok Payload
               | MovedPermanently Url
                 deriving (Show,Eq)
 
-instance Urled Response where
-    urled f (MovedPermanently u) = MovedPermanently <$> f u
-    urled _ response = pure response
+instance Location Response where
+    location f (MovedPermanently u) = MovedPermanently <$> f u
+    location _ response = pure response
 
 ok :: Text -> Response
 ok = Ok . payloadText utf8Encoding . review utf8

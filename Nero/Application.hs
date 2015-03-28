@@ -25,7 +25,7 @@ import Nero.Url
 --
 -- >>> app (mkRequest "/hello/there") <&> status
 -- Just "301 Moved Permanently"
--- >>> app (mkRequest "/hello/there") >>= preview urled
+-- >>> app (mkRequest "/hello/there") >>= preview location
 -- Just "http://example.com/hello/there/"
 --
 -- >>> app (mkRequest "/hello/there/") <&> status
