@@ -1,6 +1,7 @@
--- | This module centralizes every module exported in the package together
---   with frequently used functions when writing Nero applications such as the
---   ones from 'Lens', 'Applicative' or 'Monoid'.
+-- | This module centralizes the main modules exported by Nero such that
+--   it's straightforward to write simple Nero applications with a single
+--   import.  It also exports frequently used functions from "Control.Lens",
+--   "Control.Applicative" and "Data.Monoid".
 module Nero (module X) where
 
 import Control.Applicative as X ((<$>), pure)
