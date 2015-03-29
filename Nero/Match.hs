@@ -1,6 +1,11 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE FlexibleInstances #-}
+
+-- | This module is mostly used for routing 'Request's based on their
+--   'Path'. It can also be used for matching with any arbitrary 'Text'
+--   source.
+
 module Nero.Match
   ( Match(..)
   , Matcher
@@ -20,16 +25,17 @@ import qualified Data.Text.Lazy as T
 import Safe (readMay)
 import Control.Lens
 
--- $setup
--- >>> :set -XOverloadedStrings
-
+-- | A unit of a 'Pattern'.
 data Pat = PatText Text
          | PatAnyText
          | PatAnyInt
            deriving (Show,Eq)
 
+-- | A pattern.
 type Pattern = [Pat]
 
+-- | A monomorphic wrapper for polymorphic results. Makes it easier to deal
+--   with lists of matches.
 data Value = ValueText Text
            | ValueInt  Int
              deriving (Show,Eq)
@@ -37,17 +43,24 @@ data Value = ValueText Text
 instance IsString Pattern where
     fromString = text_ . T.pack
 
+-- | Creates a 'Pattern' from the given text discarding the match. When
+--   writing 'Pattern's directly in source code, you may prefer the
+--   instance 'IsString' of 'Pattern'.
 text_ :: Text -> Pattern
 text_ = pure . PatText
 
+-- | A 'Pattern' that captures anything.
 text :: Pattern
 text = pure PatAnyText
 
+-- | A 'Pattern' that captures any 'Int'.
 int :: Pattern
 int = pure PatAnyInt
 
+-- | Represents a 'Prism'' from 'Text' to a 'Match' result.
 type Matcher a = Prism' Text a
 
+-- | Given a 'Pattern' it creates a 'Matcher'.
 class Match a where
     match :: Pattern -> Matcher a
 
@@ -79,8 +92,17 @@ instance Match (Text, Int) where
                       [ValueInt n,ValueText txt] -> Just (txt,n)
                       _ -> Nothing)
 
+-- * Internal
+
+v2p :: [Value] -> Pattern -> Text
+v2p vs0 pats = fst $ foldr go (mempty,vs0) pats
+  where
+    go (PatText txt) (r,vs) = (txt <> r, vs)
+    go _ (r,v:vs) = (valueToText v <> r, vs)
+    go _ (r,[]) = (r,[])
+
 -- TODO: This could be much cleaner and efficient with a parser library.
--- | Values are reversed to the order of patterns.
+-- | Values are in reversed order with respect to the 'Pattern'.
 p2v :: Text -> Pattern -> [Value]
 p2v _ [] = []
 p2v src0 (pp0@(PatText ptxt0):pats) =
@@ -128,7 +150,7 @@ folder (vs,src,PatAnyText) p@PatAnyInt =
 folder (vs,src,_) PatAnyInt = (vs,src,PatAnyInt)
 
 -- | Like 'breakOn' but discards the needle and wraps Maybe when there is no
--- needle.
+--   needle.
 breakOn_ :: Text -> Text -> Maybe (Text,Text)
 breakOn_ pat src =
     let (x,m) = T.breakOn pat src
@@ -136,65 +158,6 @@ breakOn_ pat src =
              Just y -> Just (x,y)
              Nothing -> Nothing
 
-v2p :: [Value] -> Pattern -> Text
-v2p vs0 pats = fst $ foldr go (mempty,vs0) pats
-  where
-    go (PatText txt) (r,vs) = (txt <> r, vs)
-    go _ (r,v:vs) = (valueToText v <> r, vs)
-    go _ (r,[]) = (r,[])
-
 valueToText :: Value -> Text
 valueToText (ValueText txt) = txt
-valueToText (ValueInt n)    = T.pack $show n
-
-{--
--- | Splits 'Text' by enclosing characters such that odd indexed elements are
--- boundaries and even indexed elements are the enclosed items.
---
--- >>> let spl = splitEnclosed ('{','}')
--- >>> spl "hello"
--- ["hello"]
---
--- >>> spl "hello{out}there"
--- ["hello","out","there"]
---
--- >>> spl "/hello/{name}"
--- ["/hello/","name",""]
---
--- >>> spl "/hello/{name}/"
--- ["/hello/","name","/"]
---
--- >>> spl "{hello}there"
--- ["","hello","there"]
---
--- >>> spl "hello{out}{there}"
--- ["hello","out","","there",""]
---
--- >>> spl "{hello{"
--- []
---
--- >>> spl "{hello"
--- []
--- >>> spl "he{llo"
--- []
---
--- >>> spl "{hell{o}"
--- []
---
--- >>> spl "he}llo"
--- []
---
-splitEnclosed :: (Char,Char) -> Text -> [Text]
-splitEnclosed (lc,rc) = either (const []) id . T.foldr go (Right [T.empty])
-  where
-    go _ (Right []) = Right []
-    go _ (Left  []) = Left []
-    go c (Right acc@(w:ws))
-        | c == lc = Right []
-        | c == rc = Left (T.empty : acc)
-        | otherwise = Right $ T.cons c w : ws
-    go c (Left acc@(w:ws))
-        | c == lc = Right (T.empty : acc)
-        | c == rc = Left []
-        | otherwise = Left $ T.cons c w : ws
---}
+valueToText (ValueInt n)    = T.pack $ show n
