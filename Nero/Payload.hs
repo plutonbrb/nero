@@ -1,15 +1,19 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE LambdaCase #-}
 module Nero.Payload
-  ( Form
-  , Payload
+  ( Payload
   , payloadText
   , Encoding
   , utf8Encoding
   , Payloaded(..)
-  , Body(..)
-  , Formed(..)
+  -- * Body
+  , Body
+  , HasBody(..)
+  -- * Form
+  , Form
   , _Form
+  , Formed(..)
+  -- * Testing
   , dummyPayloadForm
   ) where
 
@@ -18,13 +22,13 @@ import Data.ByteString.Lazy (ByteString)
 import Control.Lens
 import Nero.Param
 
-type Form = MultiMap
-
-data Payload = PayloadText Encoding ByteString
-             | PayloadBinary ByteString
+-- | Contains the 'Body' and any metadata associated with it.
+data Payload = PayloadText Encoding Body
+             | PayloadBinary Body
              | PayloadForm Form
                deriving (Show,Eq)
 
+-- | Indicates a 'Text' encoding.
 data Encoding = Utf8
               | Unknown String
                 deriving (Show,Eq)
@@ -32,39 +36,54 @@ data Encoding = Utf8
 utf8Encoding :: Encoding
 utf8Encoding = Utf8
 
-payloadText :: Encoding -> ByteString -> Payload
+-- Creates a '/text/plain/' 'Payload' with the given 'Encoding' and a 'Body'
+payloadText :: Encoding -> Body -> Payload
 payloadText = PayloadText
 
+-- | A 'Traversal'' for types with a 'Payload'.
 class Payloaded a where
     payload :: Traversal' a Payload
 
--- Can't be made a Lens easily beacause of putative parsing failues for 'Form'
-class Body a where
-    body :: a -> ByteString
+-- * Body
 
-instance Body Payload where
+-- | It's the main data associated with the 'Payload' of 'Request' or a
+--   'Response'.
+type Body = ByteString
+
+-- Can't be made a Lens easily beacause of putative parsing failues for 'Form'
+-- | Get the 'Body' for types with one.
+class HasBody a where
+    body :: a -> Body
+
+instance HasBody Payload where
     body (PayloadText _ b) = b
     body (PayloadBinary b) = b
-    body (PayloadForm fo)  = encodeForm fo
+    body (PayloadForm fo)  = encodeMultiMap fo
 
--- * Form url encoded payload
+-- * Form
 
+-- | A 'MultiMap' in the context of a form.
+type Form = MultiMap
+
+-- | A 'Prism'' to obtain a 'Form' from a 'Payload' and make 'Payload' from
+--   a 'Form'.
+_Form :: Prism' Payload Form
+_Form = prism' PayloadForm $ \case
+    PayloadForm f -> Just f
+    _             -> Nothing
+
+-- | A 'Traversal'' to access a potential 'Form'.
 class Formed a where
     form :: Traversal' a Form
 
 instance Formed Payload where
     form = _Form
 
-encodeForm :: Form -> ByteString
-encodeForm = encodeMultiMap
-
-_Form :: Prism' Payload Form
-_Form = prism' PayloadForm $ \case
-    PayloadForm f -> Just f
-    _             -> Nothing
-
 instance Param Payload where
     param k = form . ix k . traverse
 
+-- * Testing
+
+-- | A 'Payload' with an empty 'Form' useful for testing.
 dummyPayloadForm :: Payload
 dummyPayloadForm = PayloadForm mempty

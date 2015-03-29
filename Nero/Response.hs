@@ -29,7 +29,7 @@ instance Location Response where
     location f (MovedPermanently u) = MovedPermanently <$> f u
     location _ response = pure response
 
-instance Body Response where
+instance HasBody Response where
     body (Ok pl) = body pl
     body (MovedPermanently _) = mempty
 
