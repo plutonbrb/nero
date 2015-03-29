@@ -7,7 +7,7 @@ module Nero.Param
   , encodeMultiMap
   ) where
 
-import Data.Monoid ((<>), Monoid, mappend, mempty)
+import Data.Monoid (Monoid, mappend, mempty)
 import Data.ByteString.Lazy (ByteString)
 import Data.Text.Lazy (Text, intercalate)
 import Data.Map (Map)
@@ -24,7 +24,8 @@ instance Show MultiMap where
         | otherwise = show m
 
 instance Monoid MultiMap where
-    MultiMap m1 `mappend` MultiMap m2 = MultiMap $ m1 <> m2
+    mappend (MultiMap m1) (MultiMap m2) =
+        MultiMap $ Map.unionWith mappend m1 m2
     mempty = MultiMap mempty
 
 instance Wrapped MultiMap where
