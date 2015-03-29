@@ -11,13 +11,14 @@ module Nero.Match
   (
   -- * Pattern
     Pattern
+  , Pat
   , Value
   , text
   , text_
   , int
   -- * Match
   , Matcher
-  , Target
+  , Target(..)
   , match
   ) where
 
@@ -33,14 +34,15 @@ import Control.Lens
 
 -- * Pattern
 
--- | A unit of a 'Pattern'.
+-- | A pattern.
+type Pattern = [Pat]
+
+-- TODO: Unify Pattern and Pat in the same Type.
+-- | One part of 'Pattern'.
 data Pat = PatText Text
          | PatAnyText
          | PatAnyInt
            deriving (Show,Eq)
-
--- | A pattern.
-type Pattern = [Pat]
 
 -- | A monomorphic wrapper for polymorphic results. Makes it easier to deal
 --   with lists of matches.

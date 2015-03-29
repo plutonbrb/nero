@@ -45,7 +45,7 @@ instance Payloaded Request where
     payload f (POST u p) = POST <$> pure u <*> f p
 
 -- | It traverses the values with the same key both in the /query string/
---   and the /form encoded body/ of a 'POST' 'Request'.
+--   and the /form encoded body/ of a @POST@ 'Request'.
 instance Param Request where
     param k = params . ix k . traverse
 
@@ -57,7 +57,7 @@ method :: Request -> ByteString
 method GET  {} = "GET"
 method POST {} = "POST"
 
--- | 'Prism'' to filter 'GET' 'Request's.
+-- | 'Prism'' to filter @GET@ 'Request's.
 --
 -- >>> dummyRequest ^? _GET <&> method
 -- Just "GET"
@@ -68,7 +68,7 @@ _GET = prism' id $ \case
     r@GET {} -> Just r
     _        -> Nothing
 
--- | 'Prism'' to filter for 'POST' 'Request's.
+-- | 'Prism'' to filter for @POST@ 'Request's.
 --
 -- >>> dummyRequest ^? _POST <&> method
 -- Nothing
@@ -81,7 +81,7 @@ _POST = prism' id $ \case
 
 -- | This 'Traversal' lets you traverse every HTTP parameter regardless of
 --   whether it's present in the /query string/ or in the /form encoded body/
---   of a 'POST' 'Request'. In the rare case where there are HTTP parameters in
+--   of a @POST@ 'Request'. In the rare case where there are HTTP parameters in
 --   both, every parameter is still being traversed starting from the /query
 --   string/.
 --
