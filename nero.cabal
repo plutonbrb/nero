@@ -32,11 +32,12 @@ library
   exposed-modules:     Nero,
                        Nero.Application,
                        Nero.Match,
+                       Nero.Param
                        Nero.Payload,
                        Nero.Response,
                        Nero.Request,
                        Nero.Url
-  other-modules:       Nero.Param
+--  other-modules:     
   build-depends:       base >=4.7 && <4.8,
                        bytestring,
                        containers,
