@@ -37,7 +37,7 @@ import Nero.Url
 -- >>> app $ mkRequest "/bye/"
 -- Nothing
 slashRedirect
-    :: Match a
+    :: Target a
     => Matcher a
     -> (a -> Response) -- ^ What to respond upon matching.
     -> Request

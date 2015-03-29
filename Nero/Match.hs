@@ -1,18 +1,24 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE LambdaCase #-}
 
 -- | This module is mostly used for routing 'Request's based on their
 --   'Path'. It can also be used for matching with any arbitrary 'Text'
 --   source.
 
 module Nero.Match
-  ( Match(..)
-  , Matcher
-  , Pattern
+  (
+  -- * Pattern
+    Pattern
+  , Value
   , text
   , text_
   , int
+  -- * Match
+  , Matcher
+  , Target
+  , match
   ) where
 
 import Control.Applicative (pure)
@@ -24,6 +30,8 @@ import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
 import Safe (readMay)
 import Control.Lens
+
+-- * Pattern
 
 -- | A unit of a 'Pattern'.
 data Pat = PatText Text
@@ -44,8 +52,8 @@ instance IsString Pattern where
     fromString = text_ . T.pack
 
 -- | Creates a 'Pattern' from the given text discarding the match. When
---   writing 'Pattern's directly in source code, you may prefer the
---   instance 'IsString' of 'Pattern'.
+--   writing 'Pattern's directly in source code, you may prefer to use the
+--   'IsString' instance of 'Pattern'.
 text_ :: Text -> Pattern
 text_ = pure . PatText
 
@@ -57,40 +65,44 @@ text = pure PatAnyText
 int :: Pattern
 int = pure PatAnyInt
 
--- | Represents a 'Prism'' from 'Text' to a 'Match' result.
+-- * Match
+
+-- | Represents a 'Prism'' from arbitrary 'Text' to a 'Target' result.
 type Matcher a = Prism' Text a
 
--- | Given a 'Pattern' it creates a 'Matcher'.
-class Match a where
-    match :: Pattern -> Matcher a
+-- | Helper class to support polymorphic target results.
+class Target a where
+    target :: Prism' [Value] a
 
-instance Match Text where
-    match pats = prism'
-        (\txt -> v2p [ValueText txt] pats)
-        (\src -> case p2v src pats of
-                      [ValueText txt] -> Just txt
-                      _ -> Nothing)
+instance Target Text where
+    target = prism'
+        (\txt -> [ValueText txt])
+        (\case [ValueText txt] -> Just txt
+               _ -> Nothing)
 
-instance Match Int where
-    match pats = prism'
-        (\n -> v2p [ValueInt n] pats)
-        (\src -> case p2v src pats of
-                    [ValueInt n] -> Just n
-                    _ -> Nothing)
+instance Target Int where
+    target = prism'
+        (\n -> [ValueInt n])
+        (\case [ValueInt n] -> Just n
+               _ -> Nothing)
 
-instance Match (Text, Text) where
-    match pats = prism'
-        (\(txt1,txt2) -> v2p [ValueText txt2,ValueText txt1] pats)
-        (\src -> case p2v src pats of
-                      [ValueText txt2,ValueText txt1] -> Just (txt1,txt2)
-                      _ -> Nothing)
+instance Target (Text,Text) where
+    target = prism'
+        (\(txt1,txt2) -> [ValueText txt2, ValueText txt1])
+        (\case [ValueText txt2, ValueText txt1] -> Just (txt1, txt2)
+               _ -> Nothing)
 
-instance Match (Text, Int) where
-    match pats = prism'
-        (\(txt,n) -> v2p [ValueInt n,ValueText txt] pats)
-        (\src -> case p2v src pats of
-                      [ValueInt n,ValueText txt] -> Just (txt,n)
-                      _ -> Nothing)
+instance Target (Text,Int) where
+    target = prism'
+        (\(txt1,n2) -> [ValueInt n2, ValueText txt1])
+        (\case [ValueInt n2, ValueText txt1] -> Just (txt1, n2)
+               _ -> Nothing)
+
+-- | Creates a 'Matcher' from the given 'Pattern'.
+match :: Target a => Pattern -> Matcher a
+match pats = prism'
+    (\trg -> v2p (target # trg) pats)
+    (\src -> p2v src pats ^? target)
 
 -- * Internal
 
