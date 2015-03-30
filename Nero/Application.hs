@@ -15,12 +15,13 @@ import Nero.Url
 -- $setup
 -- >>> :set -XOverloadedStrings
 -- >>> import Nero
+-- >>> import Data.Text.Lazy (Text)
 
 -- | Redirect with slash appended URL if only a trailing slash is needed for
 --   successful matching, otherwise it responds normally.
 --
 -- >>> let mkRequest p = dummyRequest & host .~ "example.com" & path .~ p
--- >>> let matcher = match $ "/hello/" <> text <> "/"
+-- >>> let matcher = match $ "/hello/" <> text <> "/" :: Matcher Text
 -- >>> let respond name = ok $ "<h1>Hello " <> name <> "</h1>"
 -- >>> let app = slashRedirect matcher respond
 --
