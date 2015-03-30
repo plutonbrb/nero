@@ -1,5 +1,5 @@
 name:                nero
-version:             0.1
+version:             0.1.1
 synopsis:            Lens-based HTTP toolkit
 description:
   This package represents the core of the @Nero@ HTTP toolkit.
@@ -20,7 +20,7 @@ copyright:           Copyright (C) 2015 J. Daniel Navarro
 category:            Web
 build-type:          Simple
 cabal-version:       >=1.10
-tested-with:         GHC==7.8.4
+tested-with:         GHC == 7.6.4, GHC == 7.8.4, GHC == 7.10.1
 extra-source-files:  README.md CHANGELOG.md
 
 source-repository head
