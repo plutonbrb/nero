@@ -4,7 +4,7 @@
 --   "Control.Applicative" and "Data.Monoid".
 module Nero (module X) where
 
-import Control.Applicative as X ((<$>), pure)
+import Control.Applicative as X ((<$>), (<*>), pure)
 import Data.Monoid as X ((<>))
 import Control.Lens as X
 
