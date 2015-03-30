@@ -35,6 +35,8 @@ Expect wild changes in the `API` in the near future.
   functional under the hood. Haskell veterans can take advantage of the
   powerful lens combinators.
 
+[![Hackage version](https://img.shields.io/hackage/v/nero.svg?style=flat)](https://hackage.haskell.org/package/nero)
+
 ## Example
 
 ```haskell
