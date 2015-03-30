@@ -1,13 +1,13 @@
 # Change Log
-All notable changes to this project will be documented in this file. This
-project adheres to [Semantic Versioning](http://semver.org/). The format of
-this file follows the recommendations from [Keep a
-CHANGELOG](http://keepachangelog.com/).
+All notable changes to this project will be documented in this file. This file
+follows the formatting recommendations from [Keep a
+CHANGELOG](http://keepachangelog.com/). This project adheres to [Semantic
+Versioning](http://semver.org/).
 
-## [Unreleased][unreleased]
+## [0.1] - 2015-3-30
 ### Added
 - Basic routing.
-- HTTP parameters (query string and form encoded) handling.
+- HTTP parameters handling for both *query string* and form encoded `POST`s.
 - Trailing slash redirection.
 
-[unreleased]: https://github.com/jdnavarro/nero/compare/a2c3f720...v0.1
+[0.1]: https://github.com/jdnavarro/nero/compare/a2c3f720...v0.1

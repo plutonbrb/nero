@@ -3,8 +3,8 @@
 > An experimental Haskell toolkit for [`Lens`][lens-home]-based web
 > application development.
 
-:warning: The following is for now a declaration of intentions only. If you
-use it now expect the `API` to change wildly in the future.
+:warning: The following is for now a declaration of intentions only.
+Expect wild changes in the `API` in the near future.
 
 * **Not a framework**: it could be considered an *anti-framework*,
   *micro-framework*, or just a "library", in the sense that it provides a
@@ -22,30 +22,30 @@ use it now expect the `API` to change wildly in the future.
   <!-- No monad transformers until they are needed.-->
 
 * **Unopinonated**: there is no preferred routing method, HTML templating
-  library, session management, web server or database adapter. It comes
-  with some defaults to alleviate the paradox of choice, but most
-  components are expected to be easily swapped in and out with 3rd party
-  Haskell libraries without the need for adapters.
+  library, session management, web server or database adapter. It comes with
+  some defaults to alleviate the [paradox of
+  choice](https://en.wikipedia.org/wiki/The_Paradox_of_Choice), but most
+  components are expected to be easily swapped in and out with plain 3rd
+  party Haskell libraries writing thin adapters if at all needed.
 
   <!-- Is pluggable right here? Sounds out of fashion -->
 
 * **Power of Haskell and Lens**: the `Lens`-based API enables styles
-  familiar to imperative programmers [`Lens`] but by being purely
-  functional under the hood, it avoids the typical imperative pitfalls.
-  Haskell veterans can take advantage of the powerful lens combinators.
+  familiar to imperative programmers [`Lens`] while being purely
+  functional under the hood. Haskell veterans can take advantage of the
+  powerful lens combinators.
 
 ## Example
 
 ```haskell
 import Nero
 
-main :: IO ()
-main = serve 8080 $ \request ->
-    request ^? _GET . match ("/hello/" <> text) <&> \name ->
-        ok $ "<h1>Hello " <> name <> "</h1>"
+app :: Request -> Maybe Response
+app = request ^? _GET . match ("/hello/" <> text) <&> \name ->
+    ok $ "<h1>Hello " <> name <> "</h1>"
 ```
 
-Check more examples with its corresponding tests at
-https//github.com/jdnavarro/nero/examples/
+Check more examples with its corresponding tests in the [examples directory](
+https://github.com/jdnavarro/nero/examples/).
 
 [lens-home]: [https://lens.github.io/]

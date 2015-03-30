@@ -58,7 +58,7 @@ tests = testGroup "HTTP parameters"
       @?= ok "<h1>Hello out there</h1>"
     ]
   where
-    mkReqQ p = dummyRequest     & query . at "name" ?~ p
+    mkReqQ p = dummyRequest & query . at "name" ?~ p
     mkReqF p = dummyRequestForm & form . at "name" ?~ p
     mkReqM pq pf = mkReqF pf & query . at "name" ?~ pq
 

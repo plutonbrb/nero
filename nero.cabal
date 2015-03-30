@@ -1,11 +1,10 @@
 name:                nero
 version:             0.1
-synopsis:            Lens-based web framework.
+synopsis:            Lens-based HTTP toolkit
 description:
-  This package contains the core utilities of the @Nero@ web application
-  toolkit.
+  This package represents the core of the @Nero@ HTTP toolkit.
   .
-  This an intial alpha release with just basic routing and HTTP parameters
+  This an initial alpha release with just basic routing and HTTP parameters
   handling.
   .
   Check the <https://github.com/jdnavarro/nero/README.md README> for a more
@@ -37,7 +36,6 @@ library
                        Nero.Response,
                        Nero.Request,
                        Nero.Url
---  other-modules:     
   build-depends:       base >=4.7 && <4.8,
                        bytestring,
                        containers,
