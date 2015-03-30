@@ -7,8 +7,8 @@ description:
   This an initial alpha release with just basic routing and HTTP parameters
   handling.
   .
-  Check the <https://github.com/jdnavarro/nero/README.md README> for a more
-  detailed explanation.
+  Check the <https://github.com/jdnavarro/nero/blob/master/README.md README>
+  for a more detailed explanation.
 homepage:            https://github.com/jdnavarro/nero
 bug-reports:         https://github.com/jdnavarro/nero/issues
 license:             BSD3

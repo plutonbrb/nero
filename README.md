@@ -46,6 +46,6 @@ app = request ^? _GET . match ("/hello/" <> text) <&> \name ->
 ```
 
 Check more examples with its corresponding tests in the [examples directory](
-https://github.com/jdnavarro/nero/examples/).
+https://github.com/jdnavarro/nero/tree/master/examples).
 
 [lens-home]: [https://lens.github.io/]
