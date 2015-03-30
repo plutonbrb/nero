@@ -1,0 +1,12 @@
+- Examples
+  - HTML templates
+  - Static assets
+  - Sessions
+- Params
+  - Unify `Param` and `Match` API.
+  - Params: Give preference to post variables when in query string and form.
+  - Support Multipart forms
+- Routing
+  - Implement Lens based routing: `toMatchOf`
+  - `Map` instance for `Target`
+- Monoid instance for `Request` and `Response`?
