@@ -36,7 +36,7 @@ library
                        Nero.Response,
                        Nero.Request,
                        Nero.Url
-  build-depends:       base >=4.6 && <4.8,
+  build-depends:       base >=4.6 && <4.9,
                        bytestring,
                        containers >= 0.5.3,
                        text,
@@ -51,7 +51,7 @@ test-suite doctests
   hs-source-dirs:      tests
   main-is:             doctests.hs
   ghc-options:         -Wall -threaded
-  build-depends:       base >= 4.6 && <4.8,
+  build-depends:       base >= 4.6 && <4.9,
                        Glob,
                        doctest
 
@@ -61,7 +61,7 @@ test-suite examples
   hs-source-dirs:      examples
   main-is:             test.hs
   ghc-options:         -Wall -threaded
-  build-depends:       base >= 4.6 && <4.8,
+  build-depends:       base >= 4.6 && <4.9,
                        bytestring,
                        text,
                        lens,
