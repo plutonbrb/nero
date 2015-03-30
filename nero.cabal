@@ -38,7 +38,7 @@ library
                        Nero.Url
   build-depends:       base >=4.6 && <4.9,
                        bytestring,
-                       containers >= 0.5.3,
+                       containers >= 0.5,
                        text,
                        lens,
                        safe
