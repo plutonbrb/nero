@@ -12,6 +12,7 @@ module Nero.Param
   , encodeMultiMap
   ) where
 
+import Data.Foldable (fold)
 import Data.Monoid (Monoid, mappend, mempty)
 import Data.ByteString.Lazy (ByteString)
 import qualified Data.ByteString.Lazy.Char8 as B8
@@ -62,5 +63,7 @@ encodeMultiMap :: MultiMap -> ByteString
 encodeMultiMap =
     review utf8
   . intercalate "&"
-  . Map.foldMapWithKey (map . mappend . flip mappend "=")
+  -- Map.foldMapWithKey not supported in `containers-0.5.0.0` coming with
+  -- GHC==7.6.3
+  . fold . Map.mapWithKey (map . mappend . flip mappend "=")
   . unMultiMap
