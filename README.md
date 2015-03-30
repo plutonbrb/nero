@@ -30,8 +30,8 @@ Expect wild changes in the `API` in the near future.
 
   <!-- Is pluggable right here? Sounds out of fashion -->
 
-* **Power of Haskell and Lens**: the `Lens`-based API enables styles
-  familiar to imperative programmers [`Lens`] while being purely
+* **Power of Haskell and Lens**: the [`Lens`][lens-home]-based API enables styles
+  familiar to imperative programmers [`Lens`][lens-home] while being purely
   functional under the hood. Haskell veterans can take advantage of the
   powerful lens combinators.
 
