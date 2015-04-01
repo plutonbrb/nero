@@ -1,8 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE LambdaCase #-}
 
 -- | This module is mostly used for routing 'Request's based on their
@@ -11,83 +9,30 @@
 
 module Nero.Match
   (
-  -- * Lens
-    Prefixed(..)
-  , Suffixed(..)
-  , fixed
-  , BrokenOn(..)
-  -- * Monoidal matching
-  -- ** Pattern
-  , Pattern
+  -- * Pattern
+    Pattern
   , Pat
   , Value
   , text
   , text_
   , int
-  -- ** Match
+  -- * Match
   , Matcher
   , Target(..)
   , match
   ) where
 
-import Control.Applicative -- ((<$>), (<*>), pure)
+import Control.Applicative (pure)
 import Data.Char (isDigit)
 import Data.Foldable (foldl')
-import Data.Monoid ((<>), mempty, mconcat)
+import Data.Monoid ((<>), mempty)
 import Data.String (IsString(fromString))
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
 import Safe (readMay)
 import Control.Lens
 
--- * Lens
-
-class Prefixed a where
-    prefixed :: Text -> Prism' a a
-
-instance Prefixed Text where
-    prefixed pat = prism' (pat <>) (T.stripPrefix pat)
-
-instance Prefixed [Text] where
-    prefixed pat =  prism' (pat <|) (traverseOf _last $ T.stripPrefix pat)
-
-class Suffixed a where
-    suffixed :: Text -> Prism' a a
-
-instance Suffixed Text where
-    suffixed pat = prism' (<> pat) (T.stripSuffix pat)
-
-instance Suffixed [Text] where
-    suffixed pat = prism'
-        (\xs -> view _init xs |> view _last xs <> pat)
-        (traverseOf _last $ T.stripSuffix pat)
-
-fixed :: Text -> Prism' Text ()
-fixed pat = prism' (const pat) $ \txt -> if pat == txt
-                                            then Just ()
-                                            else Nothing
-
-class BrokenOn a where
-     brokenOn :: Text -> Prism' a [Text]
-
-instance BrokenOn Text where
-    brokenOn pat = prism'
-        (\xs -> view _head xs <> pat <> mconcat (view _tail xs))
-        (\src -> case breakOn pat src of
-                    Just (x,y) -> Just $ pure x |> y
-                    Nothing -> Nothing)
-
-instance BrokenOn [Text] where
-    brokenOn txt = prism'
-        (\xs -> let xs' = view _init xs
-                 in view _init xs' |> view _last xs' <> txt <> view _last xs)
-        (\src -> case breakOn txt (view _last src) of
-                      Just (x,y) -> (|> y) . (|> x) <$> preview _init src
-                      Nothing -> Nothing)
-
--- * Monoidal matching
-
--- ** Pattern
+-- * Pattern
 
 -- | A pattern.
 type Pattern = [Pat]
@@ -122,7 +67,7 @@ text = pure PatAnyText
 int :: Pattern
 int = pure PatAnyInt
 
--- ** Match
+-- * Match
 
 -- | Represents a 'Prism'' from arbitrary 'Text' to a 'Target' result.
 type Matcher a = Prism' Text a
@@ -190,12 +135,12 @@ extract (vs,_,_) = vs
 
 folder :: ([Value],Text,Pat) -> Pat -> ([Value],Text,Pat)
 folder (vs,src,PatAnyText) p@(PatText ptxt) =
-    case breakOn ptxt src of
+    case breakOn_ ptxt src of
          Just (x,y) -> (ValueText x:vs,y,p)
          Nothing -> ([],"",p)
 
 folder (vs,src,PatAnyInt) p@(PatText ptxt) =
-    case breakOn ptxt src of
+    case breakOn_ ptxt src of
          Just (x,y) -> case readMay (T.unpack x) of
                             Just n  -> (ValueInt n:vs,y,p)
                             Nothing -> ([],"",p)
@@ -218,16 +163,14 @@ folder (vs,src,PatAnyText) p@PatAnyInt =
 
 folder (vs,src,_) PatAnyInt = (vs,src,PatAnyInt)
 
--- | Like 'T.breakOn' but discards the needle and wraps `Maybe` when there is no
---   needle. When the needle is empty it breaks until the end.
-breakOn :: Text -> Text -> Maybe (Text,Text)
-breakOn pat src
-    | T.null pat = Just (src, mempty)
-    | otherwise  =
-        let (x,m) = T.breakOn pat src
-         in case T.stripPrefix pat m of
-                 Just y  -> Just (x,y)
-                 Nothing -> Nothing
+-- | Like 'breakOn' but discards the needle and wraps Maybe when there is no
+--   needle.
+breakOn_ :: Text -> Text -> Maybe (Text,Text)
+breakOn_ pat src =
+    let (x,m) = T.breakOn pat src
+     in case T.stripPrefix pat m of
+             Just y -> Just (x,y)
+             Nothing -> Nothing
 
 valueToText :: Value -> Text
 valueToText (ValueText txt) = txt
