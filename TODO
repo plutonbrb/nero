@@ -7,6 +7,8 @@
   - Params: Give preference to post variables when in query string and form.
   - Support Multipart forms
 - Routing
-  - Implement Lens based routing: `toMatchOf`
-  - `Map` instance for `Target`
+  - New operator embedding `target` within `^?`, or look for a clean way to
+    convert matched results into targets.
+  - Capture `Int`s and `Floats`.
+  - Named captures.
 - Monoid instance for `Request` and `Response`?
