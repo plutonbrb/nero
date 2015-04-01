@@ -4,6 +4,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 
 -- | This module is mostly used for routing 'Request's based on their
 --   'Path'. It can also be used for matching with any arbitrary 'Text'
@@ -30,15 +31,32 @@ module Nero.Match
   , match
   ) where
 
-import Control.Applicative -- ((<$>), (<*>), pure)
+import Control.Applicative ((<$>), pure)
 import Data.Char (isDigit)
 import Data.Foldable (foldl')
-import Data.Monoid ((<>), mempty, mconcat)
+import Data.Monoid (Monoid, (<>), mappend, mempty, mconcat)
 import Data.String (IsString(fromString))
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
 import Safe (readMay)
 import Control.Lens
+
+-- | A monomorphic wrapper for polymorphic results. Makes it easier to deal
+--   with lists of matches.
+data Value = ValueText Text
+           | ValueInt  Int
+             deriving (Show,Eq)
+
+instance Monoid Value where
+    mempty = undefined
+    mappend = undefined
+
+valueToText :: Value -> Text
+valueToText (ValueText txt) = txt
+valueToText (ValueInt n)    = T.pack $ show n
+
+textToValue :: Text -> Value
+textToValue = ValueText
 
 -- * Lens
 
@@ -49,7 +67,12 @@ instance Prefixed Text where
     prefixed pat = prism' (pat <>) (T.stripPrefix pat)
 
 instance Prefixed [Text] where
-    prefixed pat =  prism' (pat <|) (traverseOf _last $ T.stripPrefix pat)
+    prefixed pat = prism' (pat <|) (traverseOf _last $ T.stripPrefix pat)
+
+instance Prefixed [Value] where
+    prefixed pat = prism'
+        (textToValue pat <|)
+        (traverseOf _last $ fmap textToValue . T.stripPrefix pat . valueToText)
 
 class Suffixed a where
     suffixed :: Text -> Prism' a a
@@ -62,27 +85,51 @@ instance Suffixed [Text] where
         (\xs -> view _init xs |> view _last xs <> pat)
         (traverseOf _last $ T.stripSuffix pat)
 
+instance Suffixed [Value] where
+    suffixed pat = prism'
+        (\xs -> view _init xs |> textToValue (valueToText (view _last xs) <> pat))
+        (traverseOf _last $ fmap textToValue . T.stripSuffix pat . valueToText)
+
 fixed :: Text -> Prism' Text ()
 fixed pat = prism' (const pat) $ \txt -> if pat == txt
                                             then Just ()
                                             else Nothing
 
-class BrokenOn a where
-     brokenOn :: Text -> Prism' a [Text]
+class BrokenOn a b where
+     brokenOn :: Text -> Prism' a b
 
-instance BrokenOn Text where
+instance BrokenOn Text [Text] where
     brokenOn pat = prism'
         (\xs -> view _head xs <> pat <> mconcat (view _tail xs))
         (\src -> case breakOn pat src of
                     Just (x,y) -> Just $ pure x |> y
                     Nothing -> Nothing)
 
-instance BrokenOn [Text] where
-    brokenOn txt = prism'
+instance BrokenOn Text [Value] where
+    brokenOn pat = prism'
+        (\vs -> vs ^. _head . to valueToText
+             <> pat
+             <> foldMapOf (_tail . traverse) valueToText vs)
+        (\src -> case breakOn pat src of
+                      Just (x,y) -> Just $ pure (textToValue x) |> textToValue y
+                      Nothing -> Nothing)
+
+instance BrokenOn [Text] [Text] where
+    brokenOn pat = prism'
         (\xs -> let xs' = view _init xs
-                 in view _init xs' |> view _last xs' <> txt <> view _last xs)
-        (\src -> case breakOn txt (view _last src) of
+                 in view _init xs' |> view _last xs' <> pat <> view _last xs)
+        (\src -> case breakOn pat (view _last src) of
                       Just (x,y) -> (|> y) . (|> x) <$> preview _init src
+                      Nothing -> Nothing)
+
+instance BrokenOn [Value] [Value] where
+    brokenOn pat = prism'
+        (\vs -> let vs' = view _init vs
+                 in view _init vs' |> textToValue (valueToText (view _last vs')
+                                   <> pat
+                                   <> valueToText (view _last vs)))
+        (\src -> case breakOn pat (valueToText $ view _last src) of
+                      Just (x,y) -> (|> textToValue y) . (|> textToValue x) <$> preview _init src
                       Nothing -> Nothing)
 
 -- * Monoidal matching
@@ -98,12 +145,6 @@ data Pat = PatText Text
          | PatAnyText
          | PatAnyInt
            deriving (Show,Eq)
-
--- | A monomorphic wrapper for polymorphic results. Makes it easier to deal
---   with lists of matches.
-data Value = ValueText Text
-           | ValueInt  Int
-             deriving (Show,Eq)
 
 instance IsString Pattern where
     fromString = text_ . T.pack
@@ -145,14 +186,14 @@ instance Target Int where
 
 instance Target (Text,Text) where
     target = prism'
-        (\(txt1,txt2) -> [ValueText txt2, ValueText txt1])
-        (\case [ValueText txt2, ValueText txt1] -> Just (txt1, txt2)
+        (\(txt1,txt2) -> [ValueText txt1, ValueText txt2])
+        (\case [ValueText txt1, ValueText txt2] -> Just (txt1, txt2)
                _ -> Nothing)
 
 instance Target (Text,Int) where
     target = prism'
-        (\(txt1,n2) -> [ValueInt n2, ValueText txt1])
-        (\case [ValueInt n2, ValueText txt1] -> Just (txt1, n2)
+        (\(txt1,n2) -> [ValueText txt1, ValueInt n2])
+        (\case [ValueText txt1, ValueInt n2] -> Just (txt1, n2)
                _ -> Nothing)
 
 -- | Creates a 'Matcher' from the given 'Pattern'.
@@ -228,7 +269,3 @@ breakOn pat src
          in case T.stripPrefix pat m of
                  Just y  -> Just (x,y)
                  Nothing -> Nothing
-
-valueToText :: Value -> Text
-valueToText (ValueText txt) = txt
-valueToText (ValueInt n)    = T.pack $ show n
