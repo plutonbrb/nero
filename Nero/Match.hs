@@ -49,8 +49,8 @@ data MValue = MText Text
              deriving (Show,Eq)
 
 instance Monoid MValue where
-    mempty  = undefined
-    mappend = undefined
+    mempty        = MText mempty
+    mappend v1 v2 = MText (valueToText v1 <> valueToText v2)
 
 valueToText :: MValue -> Text
 valueToText (MText txt) = txt
