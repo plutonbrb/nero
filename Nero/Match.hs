@@ -68,9 +68,6 @@ class Prefixed a where
 instance Prefixed Text where
     prefixed pat = prism' (pat <>) (T.stripPrefix pat)
 
--- instance Prefixed [Text] where
---     prefixed pat = prism' (pat <|) (traverseOf _last $ T.stripPrefix pat)
-
 instance Prefixed Match where
     prefixed pat = prism'
         (textToValue pat <|)
@@ -82,11 +79,6 @@ class Suffixed a where
 instance Suffixed Text where
     suffixed pat = prism' (<> pat) (T.stripSuffix pat)
 
--- instance Suffixed [Text] where
---     suffixed pat = prism'
---         (\xs -> view _init xs |> view _last xs <> pat)
---         (traverseOf _last $ T.stripSuffix pat)
-
 instance Suffixed Match where
     suffixed pat = prism'
         (\xs -> view _init xs |> textToValue (valueToText (view _last xs) <> pat))
@@ -97,17 +89,10 @@ exact pat = prism' (const pat) $ \txt -> if pat == txt
                                             then Just ()
                                             else Nothing
 
-class Capture a b where
-     capture :: Text -> Prism' a b
+class Capture a where
+     capture :: Text -> Prism' a Match
 
--- instance Capture Text [Text] where
---     capture pat = prism'
---         (\xs -> view _head xs <> pat <> mconcat (view _tail xs))
---         (\src -> case breakOn pat src of
---                     Just (x,y) -> Just $ pure x |> y
---                     Nothing -> Nothing)
-
-instance Capture Text Match where
+instance Capture Text where
     capture pat = prism'
         (\vs -> vs ^. _head . to valueToText
              <> pat
@@ -116,15 +101,7 @@ instance Capture Text Match where
                       Just (x,y) -> Just $ pure (textToValue x) |> textToValue y
                       Nothing -> Nothing)
 
-instance Capture [Text] [Text] where
-    capture pat = prism'
-        (\xs -> let xs' = view _init xs
-                 in view _init xs' |> view _last xs' <> pat <> view _last xs)
-        (\src -> case breakOn pat (view _last src) of
-                      Just (x,y) -> (|> y) . (|> x) <$> preview _init src
-                      Nothing -> Nothing)
-
-instance Capture Match Match where
+instance Capture Match where
     capture pat = prism'
         (\vs -> let vs' = view _init vs
                  in view _init vs' |> textToValue (valueToText (view _last vs')
