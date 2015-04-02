@@ -1,10 +1,10 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE LambdaCase #-}
 module Hello where
 
 import Test.Tasty (TestTree, defaultMain, testGroup)
 import Test.Tasty.HUnit ((@?=), testCase)
 import Nero
+import Data.Text.Lazy (Text)
 
 app1 :: Request -> Maybe Response
 app1 request = request ^? _GET . path . prefixed "/hello/"
@@ -12,14 +12,8 @@ app1 request = request ^? _GET . path . prefixed "/hello/"
 
 -- Match a tuple of any text and an int.
 app2 :: Request -> Maybe Response
-app2 request = request ^? _GET . path . prefixed "/hello/" . capture "/" . suffixed "/" . target
+app2 request = request ^? _GET . path . prefixed "/hello/" . (capture "/" :: Fold Text Match) . suffixed "/"
         <&> \(name,uid) -> ok $ "<h1>Hello " <> name <> " " <> uid <> "</h1>"
-
--- | Match a list of matched `Text`s.
-app3 :: Request -> Maybe Response
-app3 request =
-    request ^? _GET . path . prefixed "/hello/" . capture "/" . suffixed "/" . target <&>
-        \(name,uid) -> ok $ "<h1>Hello " <> name <> " " <> uid <> "</h1>"
 
 -- | Named matching
 -- app4 :: Request -> Maybe Response
