@@ -5,10 +5,7 @@ module Nero.Application
   ( slashRedirect
   ) where
 
-import Control.Applicative (pure)
-import Data.Monoid ((<>))
-import Control.Lens
-
+import Nero.Prelude
 import Nero.Request
 import Nero.Response
 import Nero.Match

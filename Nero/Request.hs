@@ -11,10 +11,9 @@ module Nero.Request
   , dummyRequestForm
   ) where
 
-import Control.Applicative ((<$>), (<*>), pure)
 import Data.ByteString (ByteString)
-import Control.Lens
 
+import Nero.Prelude
 import Nero.Param
 import Nero.Payload
 import Nero.Url

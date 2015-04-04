@@ -16,13 +16,12 @@ module Nero.Url
   , dummyUrl
   ) where
 
-import Control.Applicative ((<$>))
-import Data.Monoid ((<>), mempty)
 import Data.ByteString (ByteString)
 import qualified Data.ByteString.Char8 as B8
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
-import Control.Lens
+
+import Nero.Prelude
 import Nero.Param
 
 -- | Composite type of a 'Scheme', 'Host', 'Path', 'Query'.

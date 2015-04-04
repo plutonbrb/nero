@@ -12,15 +12,14 @@ module Nero.Param
   , encodeMultiMap
   ) where
 
-import Data.Foldable (fold)
-import Data.Monoid (Monoid, mappend, mempty)
 import Data.ByteString.Lazy (ByteString)
 import qualified Data.ByteString.Lazy.Char8 as B8
 import Data.Text.Lazy (Text, intercalate)
 import Data.Map (Map)
 import qualified Data.Map as Map
-import Control.Lens
 import Data.Text.Lazy.Lens (utf8)
+
+import Nero.Prelude
 
 -- | A 'Map' with multiple values. Also known as a @MultiDict@ in most web
 --   frameworks.

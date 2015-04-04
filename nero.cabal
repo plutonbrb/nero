@@ -33,6 +33,7 @@ library
                        Nero.Match,
                        Nero.Param
                        Nero.Payload,
+                       Nero.Prelude,
                        Nero.Response,
                        Nero.Request,
                        Nero.Url

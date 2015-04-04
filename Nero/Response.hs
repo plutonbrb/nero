@@ -9,14 +9,12 @@ module Nero.Response
   , status
   ) where
 
-import Control.Applicative ((<$>), pure)
-import Data.Monoid ((<>), mempty)
 import Data.ByteString (ByteString)
 import qualified Data.ByteString.Char8 as B8
 import Data.Text.Lazy (Text)
-import Control.Lens
 import Data.Text.Lazy.Lens (utf8)
 
+import Nero.Prelude
 import Nero.Payload
 import Nero.Url
 

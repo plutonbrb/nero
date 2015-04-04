@@ -1,4 +1,3 @@
-{-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE LambdaCase #-}
 module Nero.Payload
   ( Payload
@@ -17,9 +16,9 @@ module Nero.Payload
   , dummyPayloadForm
   ) where
 
-import Data.Monoid (mempty)
 import Data.ByteString.Lazy (ByteString)
-import Control.Lens
+
+import Nero.Prelude
 import Nero.Param
 
 -- | Contains the 'Body' and any metadata associated with it.

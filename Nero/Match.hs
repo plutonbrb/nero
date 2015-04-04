@@ -18,13 +18,12 @@ module Nero.Match
   , Target(..)
   ) where
 
-import Control.Applicative (pure)
-import Data.Monoid ((<>), mempty)
 import Text.Read (readMaybe)
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
-import Control.Lens
 import Data.Bitraversable (bitraverse)
+
+import Nero.Prelude
 
 -- $setup
 -- >>> :set -XOverloadedStrings
@@ -61,8 +60,7 @@ match = to pure
 --
 -- An empty 'Match' matches to itself regardless of the pattern.
 --
--- >>> let p = prefixed "hello"
--- >>> preview p (review p mempty) <&> is _Empty
+-- >>> preview (prefixed "hello") (review (prefixed "hello") mempty) <&> is _Empty
 -- Just True
 prefixed :: Text -> Prism' Match Match
 prefixed pat = prism'
@@ -93,8 +91,7 @@ prefixed pat = prism'
 --
 -- An empty 'Match' matches to itself regardless of the pattern.
 --
--- >>> let p = suffixed "hello"
--- >>> preview p (review p mempty) <&> is _Empty
+-- >>> preview (suffixed "hello") (review (suffixed "hello") mempty) <&> is _Empty
 -- Just True
 suffixed :: Text -> Prism' Match Match
 suffixed pat = prism'
