@@ -7,6 +7,10 @@
   - Params: Give preference to post variables when in query string and form.
   - Support Multipart forms
 - Routing
-  - Implement Lens based routing: `toMatchOf`
-  - `Map` instance for `Target`
+  - Named captures.
+  - Ixed instance for `Target`.
+  - Property testing for `Prism`s laws matching lens.
 - Monoid instance for `Request` and `Response`?
+- External packages
+  - Monoidal matching
+  - WAI handler

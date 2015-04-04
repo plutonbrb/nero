@@ -40,8 +40,8 @@ library
                        bytestring,
                        containers >= 0.5,
                        text,
-                       lens,
-                       safe
+                       bifunctors,
+                       lens
   default-language:    Haskell2010
   ghc-options:         -Wall
 

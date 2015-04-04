@@ -2,176 +2,203 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE LambdaCase #-}
-
--- | This module is mostly used for routing 'Request's based on their
---   'Path'. It can also be used for matching with any arbitrary 'Text'
---   source.
-
+{-|
+This module should be mostly used for matching the 'Nero.Url.Path' of a 'Nero.Request.Request', also known as __routing__.
+-}
 module Nero.Match
   (
-  -- * Pattern
-    Pattern
-  , Pat
-  , Value
-  , text
-  , text_
-  , int
-  -- * Match
-  , Matcher
-  , Target(..)
+  -- * Matching
+    Match
   , match
+  , prefixed
+  , suffixed
+  , exact
+  , sep
+  -- * Results handling
+  , Target(..)
   ) where
 
 import Control.Applicative (pure)
-import Data.Char (isDigit)
-import Data.Foldable (foldl')
 import Data.Monoid ((<>), mempty)
-import Data.String (IsString(fromString))
+import Text.Read (readMaybe)
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
-import Safe (readMay)
 import Control.Lens
+import Data.Bitraversable (bitraverse)
 
--- * Pattern
+-- $setup
+-- >>> :set -XOverloadedStrings
+-- >>> import Control.Lens.Extras (is)
 
--- | A pattern.
-type Pattern = [Pat]
+-- * Matching
 
--- TODO: Unify Pattern and Pat in the same Type.
--- | One part of 'Pattern'.
-data Pat = PatText Text
-         | PatAnyText
-         | PatAnyInt
-           deriving (Show,Eq)
+-- | This contains matched 'Text' in reverse order to how it was matched.
+type Match = [Text]
 
--- | A monomorphic wrapper for polymorphic results. Makes it easier to deal
---   with lists of matches.
-data Value = ValueText Text
-           | ValueInt  Int
-             deriving (Show,Eq)
+-- | This is just @to pure@ with a refined type.
+match :: Getter Text Match
+match = to pure
 
-instance IsString Pattern where
-    fromString = text_ . T.pack
+-- | This 'Prism'' /strips\/prepends/ a prefix to the first element of a 'Match'.
+--
+-- >>> pure "/hello/there" ^? prefixed "/hello/" . _head
+-- Just "there"
+--
+-- >>> prefixed "/hello/" # pure "there" & view _head
+-- "/hello/there"
+--
+-- If matching the entire source it previews to an empty 'Text'. You might
+-- use 'exact' if you are expecting this behavior.
+--
+-- >>> pure "hello" ^? prefixed "hello" . _head
+-- Just ""
+--
+-- This also means that to 'review' an entire source, you need to give it
+-- an empty 'Text'.
+--
+-- >>> prefixed "hello" # pure mempty & view _head
+-- "hello"
+--
+-- An empty 'Match' matches to itself regardless of the pattern.
+--
+-- >>> let p = prefixed "hello"
+-- >>> preview p (review p mempty) <&> is _Empty
+-- Just True
+prefixed :: Text -> Prism' Match Match
+prefixed pat = prism'
+    (_head %~ (pat <>))
+    (\src -> case uncons src of
+        Just (h,t) -> T.stripPrefix pat h <&> (<| t)
+        Nothing -> Just mempty)
 
--- | Creates a 'Pattern' from the given text discarding the match. When
---   writing 'Pattern's directly in source code, you may prefer to use the
---   'IsString' instance of 'Pattern'.
-text_ :: Text -> Pattern
-text_ = pure . PatText
+-- | This 'Prism'' /strips\/appends/ a suffix to the first value of a 'Match'.
+--
+-- >>> pure "/hello/there" ^? suffixed "there" . _head
+-- Just "/hello/"
+--
+-- >>> suffixed "there" # pure "/hello/" & view _head
+-- "/hello/there"
+--
+-- If matching the entire source it previews to an empty 'Text'. You might
+-- use 'exact' if you are expecting this behavior.
+--
+-- >>> pure "hello" ^? suffixed "hello" . _head
+-- Just ""
+--
+-- This also means that to 'review' an entire source, you need to give it
+-- an empty 'Text'.
+--
+-- >>> suffixed "hello" # pure mempty & view _head
+-- "hello"
+--
+-- An empty 'Match' matches to itself regardless of the pattern.
+--
+-- >>> let p = suffixed "hello"
+-- >>> preview p (review p mempty) <&> is _Empty
+-- Just True
+suffixed :: Text -> Prism' Match Match
+suffixed pat = prism'
+    (_head %~ (<> pat))
+    (\src -> case uncons src of
+        Just (h,t) -> T.stripSuffix pat h <&> (<| t)
+        Nothing -> Just mempty)
 
--- | A 'Pattern' that captures anything.
-text :: Pattern
-text = pure PatAnyText
+-- | This 'Prism'' /splits\/joins/ at the first occurrence of a boundary
+--   for the first value of a 'Match'.
+--
+-- >>> pure "hello/out/there" ^? sep "/" <&> toListOf folded
+-- Just ["out/there","hello"]
+--
+-- >>> sep "/" # (pure "out/there" <> pure "hello") & view _head
+-- "hello/out/there"
+--
+-- Notice what happens when there is no source before or after a boundary:
+--
+-- >>> pure "hello/" ^? sep "/"
+-- Just ["","hello"]
+-- >>> (pure "hello/" <> pure "there") ^? sep "/"
+-- Just ["","hello","there"]
+--
+-- >>> pure "/hello" ^? sep "/"
+-- Just ["hello",""]
+-- >>> (pure "/hello" <> pure "there") ^? sep "/"
+-- Just ["hello","","there"]
+--
+-- When the source /is/ identical to the boundary:
+-- >>> pure "hello" ^? sep "hello"
+-- Just []
+sep :: Text -> Prism' Match Match
+sep pat = prism'
+    (\trg -> case uncons trg of
+        Nothing -> pure pat
+        Just (h1,t1) -> case uncons t1 of
+            Nothing -> pat <| pure h1
+            Just (h2,t2) -> h2 <> pat <> h1 <| t2)
+    (\src -> case uncons src of
+        Nothing -> Nothing
+        Just (h1,t) ->
+            if h1 == pat
+               then Just t
+               else case breakOn pat h1 of
+                    Nothing -> Nothing
+                    Just (x,y) ->  Just $ y <| x <| t)
 
--- | A 'Pattern' that captures any 'Int'.
-int :: Pattern
-int = pure PatAnyInt
+-- | This is just an alias to 'only'. Use this to match the entirety of
+--   the source. The source mustn't be lifted to a 'Match'.
+--
+-- >>> "hello" ^? exact "hello"
+-- Just ()
+exact :: Text -> Prism' Text ()
+exact = only
 
--- * Match
+-- * Result handling
 
--- | Represents a 'Prism'' from arbitrary 'Text' to a 'Target' result.
-type Matcher a = Prism' Text a
-
--- | Helper class to support polymorphic target results.
+-- | 'Prism'' between a 'Match' and a target type.
 class Target a where
-    target :: Prism' [Value] a
+    target :: Prism' Match a
+
+instance Target Match where
+    target = id
 
 instance Target Text where
     target = prism'
-        (\txt -> [ValueText txt])
-        (\case [ValueText txt] -> Just txt
-               _ -> Nothing)
+        pure
+        (\src -> src ^.. folded & \case
+            [x] -> Just x
+            _ -> Nothing)
 
 instance Target Int where
     target = prism'
-        (\n -> [ValueInt n])
-        (\case [ValueInt n] -> Just n
-               _ -> Nothing)
+        (pure . T.pack . show)
+        (\src -> src ^.. folded & \case
+            [v] -> readMaybe . T.unpack $ v
+            _ -> Nothing)
 
-instance Target (Text,Text) where
+instance Target Float where
     target = prism'
-        (\(txt1,txt2) -> [ValueText txt2, ValueText txt1])
-        (\case [ValueText txt2, ValueText txt1] -> Just (txt1, txt2)
-               _ -> Nothing)
+        (pure . T.pack . show)
+        (\src -> src ^.. folded & \case
+            [v] -> readMaybe . T.unpack $ v
+            _ -> Nothing)
 
-instance Target (Text,Int) where
+instance (Target a, Target b) => Target (a,b) where
     target = prism'
-        (\(txt1,n2) -> [ValueInt n2, ValueText txt1])
-        (\case [ValueInt n2, ValueText txt1] -> Just (txt1, n2)
-               _ -> Nothing)
-
--- | Creates a 'Matcher' from the given 'Pattern'.
-match :: Target a => Pattern -> Matcher a
-match pats = prism'
-    (\trg -> v2p (target # trg) pats)
-    (\src -> p2v src pats ^? target)
+        (\(t1,t2) -> target # t2 <> target # t1)
+        (\src -> src ^.. folded & \case
+                [v2,v1] -> bitraverse (preview target)
+                                      (preview target)
+                                      (pure v1, pure v2)
+                _ -> Nothing)
 
 -- * Internal
 
-v2p :: [Value] -> Pattern -> Text
-v2p vs0 pats = fst $ foldr go (mempty,vs0) pats
-  where
-    go (PatText txt) (r,vs) = (txt <> r, vs)
-    go _ (r,v:vs) = (valueToText v <> r, vs)
-    go _ (r,[]) = (r,[])
-
--- TODO: This could be much cleaner and efficient with a parser library.
--- | Values are in reversed order with respect to the 'Pattern'.
-p2v :: Text -> Pattern -> [Value]
-p2v _ [] = []
-p2v src0 (pp0@(PatText ptxt0):pats) =
-    case T.stripPrefix ptxt0 src0 of
-        Just x -> extract $ foldl' folder ([],x,pp0) pats
-        Nothing -> []
-p2v src0 (pp0:pats) = extract $ foldl' folder ([],src0,pp0) pats
-
-extract :: ([Value],Text,Pat) -> [Value]
-extract (vs,src,PatAnyText) = ValueText src : vs
-extract (vs,src,PatAnyInt) =
-    case readMay (T.unpack src) of
-         Just n  -> ValueInt n : vs
-         Nothing -> []
-extract (vs,_,_) = vs
-
-folder :: ([Value],Text,Pat) -> Pat -> ([Value],Text,Pat)
-folder (vs,src,PatAnyText) p@(PatText ptxt) =
-    case breakOn_ ptxt src of
-         Just (x,y) -> (ValueText x:vs,y,p)
-         Nothing -> ([],"",p)
-
-folder (vs,src,PatAnyInt) p@(PatText ptxt) =
-    case breakOn_ ptxt src of
-         Just (x,y) -> case readMay (T.unpack x) of
-                            Just n  -> (ValueInt n:vs,y,p)
-                            Nothing -> ([],"",p)
-         Nothing -> ([],"",p)
-
-folder (vs,src,PatText _) p@(PatText ptxt) =
-    case T.stripPrefix ptxt src of
-        Just x  -> (vs,x,p)
-        Nothing -> ([],"",p)
-
-folder (vs,src,PatAnyInt) p@PatAnyText =
-    let (x,y) = T.span isDigit src
-     in (ValueInt (read $ T.unpack x):vs,y,p)
-
-folder (vs,src,_) PatAnyText = (vs,src,PatAnyText)
-
-folder (vs,src,PatAnyText) p@PatAnyInt =
-    let (x,y) = T.span (not . isDigit) src
-    in  (ValueText x:vs,y,p)
-
-folder (vs,src,_) PatAnyInt = (vs,src,PatAnyInt)
-
--- | Like 'breakOn' but discards the needle and wraps Maybe when there is no
---   needle.
-breakOn_ :: Text -> Text -> Maybe (Text,Text)
-breakOn_ pat src =
-    let (x,m) = T.breakOn pat src
-     in case T.stripPrefix pat m of
-             Just y -> Just (x,y)
-             Nothing -> Nothing
-
-valueToText :: Value -> Text
-valueToText (ValueText txt) = txt
-valueToText (ValueInt n)    = T.pack $ show n
+-- | Like 'T.breakOn' but discards the needle and wraps `Maybe` when there is no
+--   needle. When the needle is empty it breaks until the end.
+breakOn :: Text -> Text -> Maybe (Text,Text)
+breakOn pat src
+    | T.null pat = Just (src, mempty)
+    | otherwise  =
+        let (x,m) = T.breakOn pat src
+         in case T.stripPrefix pat m of
+                 Just y  -> Just (x,y)
+                 Nothing -> Nothing
