@@ -48,6 +48,8 @@ import Nero.Url
 
 "Data.Foldable" re-exports 'fold'
 
+"Control.Monad"  re-exports '>=>'
+
 "Data.Monoid" re-exports 'Monoid', '<>', 'mappend', 'mempty'
 
 "Control.Lens"

@@ -131,14 +131,10 @@ sep pat = prism'
         Just (h1,t1) -> case uncons t1 of
             Nothing -> pat <| pure h1
             Just (h2,t2) -> h2 <> pat <> h1 <| t2)
-    (\src -> case uncons src of
-        Nothing -> Nothing
-        Just (h1,t) ->
-            if h1 == pat
-               then Just t
-               else case breakOn pat h1 of
-                    Nothing -> Nothing
-                    Just (x,y) ->  Just $ y <| x <| t)
+    (uncons >=> \(h1,t) ->
+        if pat == h1
+           then Just mempty
+           else breakOn pat h1 <&> \(x,y) -> y <| x <| t)
 
 -- | This is just an alias to 'only'. Use this to match the entirety of
 --   the source. The source mustn't be lifted to a 'Match'.
