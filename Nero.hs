@@ -21,10 +21,11 @@ module Nero
   , movedPermanently
   -- * Matching
   , match
-  , prefixed
-  , suffixed
-  , exact
+  , Prefixed(..)
+  , Suffixed(..)
   , sep
+  , split
+  , exact
   -- * Results handling
   , Target(..)
   -- * Testing

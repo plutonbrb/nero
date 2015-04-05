@@ -6,12 +6,12 @@ import Test.Tasty.HUnit ((@?=), testCase)
 import Nero
 
 app1 :: Request -> Maybe Response
-app1 request = request ^? _GET . path . match . prefixed "/hello/" . target
+app1 request = request ^? _GET . path . prefixed "/hello/"
      <&> \name -> ok $ "<h1>Hello " <> name <> "</h1>"
 
 -- Match a tuple of any text and an int.
 app2 :: Request -> Maybe Response
-app2 request = request ^? _GET . path . match . prefixed "/hello/" . sep "/" . suffixed "/" . target
+app2 request = request ^? _GET . path . prefixed "/hello/" . split "/" . suffixed "/" . target
         <&> \(name,uid) -> ok $ "<h1>Hello " <> name <> " " <> uid <> "</h1>"
 
 -- | Named matching

@@ -10,10 +10,11 @@ module Nero.Match
   -- * Matching
     Match
   , match
-  , prefixed
-  , suffixed
-  , exact
+  , Prefixed(..)
+  , Suffixed(..)
   , sep
+  , split
+  , exact
   -- * Results handling
   , Target(..)
   ) where
@@ -38,67 +39,81 @@ type Match = [Text]
 match :: Getter Text Match
 match = to pure
 
--- | This 'Prism'' /strips\/prepends/ a prefix to the first element of a 'Match'.
+-- | This 'Prism'' /strips\/prepends/ a prefix.
 --
--- >>> pure "/hello/there" ^? prefixed "/hello/" . _head
+-- >>> ("/hello/there"::Text) ^? prefixed "/hello/"
 -- Just "there"
 --
--- >>> prefixed "/hello/" # pure "there" & view _head
+-- >>> prefixed "/hello/" # ("there"::Text)
 -- "/hello/there"
 --
 -- If matching the entire source it previews to an empty 'Text'. You might
 -- use 'exact' if you are expecting this behavior.
 --
--- >>> pure "hello" ^? prefixed "hello" . _head
+-- >>> ("hello"::Text) ^? prefixed "hello"
 -- Just ""
 --
 -- This also means that to 'review' an entire source, you need to give it
 -- an empty 'Text'.
 --
--- >>> prefixed "hello" # pure mempty & view _head
+-- >>> prefixed "hello" # (mempty::Text)
 -- "hello"
 --
 -- An empty 'Match' matches to itself regardless of the pattern.
 --
--- >>> preview (prefixed "hello") (review (prefixed "hello") mempty) <&> is _Empty
+-- >>> preview (prefixed "hello") (review (prefixed "hello") (mempty::Text)) <&> is _Empty
 -- Just True
-prefixed :: Text -> Prism' Match Match
-prefixed pat = prism'
-    (_head %~ (pat <>))
-    (\src -> case uncons src of
-        Just (h,t) -> T.stripPrefix pat h <&> (<| t)
-        Nothing -> Just mempty)
+class Prefixed a where
+    prefixed :: Text -> Prism' a a
 
--- | This 'Prism'' /strips\/appends/ a suffix to the first value of a 'Match'.
+instance Prefixed Text where
+    prefixed pat = prism' (pat <>) (T.stripPrefix pat)
+
+-- | Like 'Text' instance but for the head of a `Match`
+instance Prefixed Match where
+    prefixed pat = prism'
+        (_head %~ (pat <>))
+        (\src -> case uncons src of
+            Just (h,t) -> T.stripPrefix pat h <&> (<| t)
+            Nothing -> Just mempty)
+
+-- | This 'Prism'' /strips\/appends/ a suffix.
 --
--- >>> pure "/hello/there" ^? suffixed "there" . _head
+-- >>> ("/hello/there"::Text) ^? suffixed "there"
 -- Just "/hello/"
 --
--- >>> suffixed "there" # pure "/hello/" & view _head
+-- >>> suffixed "there" # ("/hello/"::Text)
 -- "/hello/there"
 --
 -- If matching the entire source it previews to an empty 'Text'. You might
 -- use 'exact' if you are expecting this behavior.
 --
--- >>> pure "hello" ^? suffixed "hello" . _head
+-- >>> ("hello"::Text) ^? suffixed "hello"
 -- Just ""
 --
 -- This also means that to 'review' an entire source, you need to give it
 -- an empty 'Text'.
 --
--- >>> suffixed "hello" # pure mempty & view _head
+-- >>> suffixed "hello" # (mempty::Text)
 -- "hello"
 --
 -- An empty 'Match' matches to itself regardless of the pattern.
 --
--- >>> preview (suffixed "hello") (review (suffixed "hello") mempty) <&> is _Empty
+-- >>> preview (suffixed "hello") (review (suffixed "hello") (mempty::Text)) <&> is _Empty
 -- Just True
-suffixed :: Text -> Prism' Match Match
-suffixed pat = prism'
-    (_head %~ (<> pat))
-    (\src -> case uncons src of
-        Just (h,t) -> T.stripSuffix pat h <&> (<| t)
-        Nothing -> Just mempty)
+class Suffixed a where
+    suffixed :: Text -> Prism' a a
+
+instance Suffixed Text where
+    suffixed pat = prism' (<> pat) (T.stripSuffix pat)
+
+-- | Like 'Text' instance but for the head of a `Match`
+instance Suffixed Match where
+    suffixed pat = prism'
+        (_head %~ (<> pat))
+        (\src -> case uncons src of
+            Just (h,t) -> T.stripSuffix pat h <&> (<| t)
+            Nothing -> Just mempty)
 
 -- | This 'Prism'' /splits\/joins/ at the first occurrence of a boundary
 --   for the first value of a 'Match'.
@@ -135,6 +150,12 @@ sep pat = prism'
         if pat == h1
            then Just mempty
            else breakOn pat h1 <&> \(x,y) -> y <| x <| t)
+
+-- | This is the composition of `match` and `sep`. Use this to avoid
+--   lifting a 'Match' explicitly. Notice that, unlike `sep`, this is not
+--   reversible.
+split :: Text -> Fold Text Match
+split pat = match . sep pat
 
 -- | This is just an alias to 'only'. Use this to match the entirety of
 --   the source. The source mustn't be lifted to a 'Match'.
