@@ -1,14 +1,17 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TypeFamilies #-}
-
--- | This module is mainly intended to be used for rare occassions.
---   "Nero.Request" and "Nero.Payload" should provide everything you need
---   for HTTP parameters.
-
+{-|
+This module is mainly intended to be used for rare occassions.
+"Nero.Request" and "Nero.Payload" should provide everything you need
+for HTTP parameters.
+-}
 module Nero.Param
-  ( MultiMap
-  , Param(..)
+  (
+  -- * HTTP Parameters
+    Param(..)
+  -- * MultiMap
+  , MultiMap
   , encodeMultiMap
   ) where
 
@@ -20,6 +23,14 @@ import qualified Data.Map as Map
 import Data.Text.Lazy.Lens (utf8)
 
 import Nero.Prelude
+
+-- * HTTP Parameters
+
+-- | A 'Traversal'' of the values of a given HTTP parameter.
+class Param a where
+    param :: Text -> Traversal' a Text
+
+-- * MultiMap
 
 -- | A 'Map' with multiple values. Also known as a @MultiDict@ in most web
 --   frameworks.
@@ -47,10 +58,6 @@ instance Ixed MultiMap where
 
 instance At MultiMap where
     at k = _Wrapped' . at k
-
--- | A 'Traversal'' of the values of a given HTTP parameter.
-class Param a where
-    param :: Text -> Traversal' a Text
 
 instance Param MultiMap where
     param k = ix k . traverse

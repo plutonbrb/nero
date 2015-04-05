@@ -1,7 +1,9 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeFamilies #-}
 module Nero.Url
-  ( Url
+  (
+  -- * URL
+    Url
   , Scheme
   , Host
   , Path
@@ -23,6 +25,8 @@ import qualified Data.Text.Lazy as T
 
 import Nero.Prelude
 import Nero.Param
+
+-- * URL
 
 -- | Composite type of a 'Scheme', 'Host', 'Path', 'Query'.
 data Url = Url Scheme Host Path Query deriving Eq

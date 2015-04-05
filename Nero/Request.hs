@@ -1,7 +1,9 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE LambdaCase #-}
 module Nero.Request
-  ( Request
+  (
+  -- * Request
+    Request
   , method
   , _GET
   , _POST
@@ -20,6 +22,8 @@ import Nero.Url
 
 -- $setup
 -- >>> :set -XOverloadedStrings
+
+-- * Request
 
 -- | An HTTP Request.
 data Request = GET Url

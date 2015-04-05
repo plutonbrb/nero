@@ -2,7 +2,9 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE LambdaCase #-}
 module Nero.Application
-  ( slashRedirect
+  (
+  -- * Trailing slash redirection
+    slashRedirect
   ) where
 
 import Nero.Prelude
@@ -10,6 +12,8 @@ import Nero.Request
 import Nero.Response
 import Nero.Match
 import Nero.Url
+
+-- * Trailing slash redirection
 
 -- $setup
 -- >>> :set -XOverloadedStrings

@@ -1,6 +1,8 @@
 {-# LANGUAGE LambdaCase #-}
 module Nero.Payload
-  ( Payload
+  (
+  -- * Payload
+    Payload
   , payloadText
   , Encoding
   , utf8Encoding
@@ -20,6 +22,8 @@ import Data.ByteString.Lazy (ByteString)
 
 import Nero.Prelude
 import Nero.Param
+
+-- * Payload
 
 -- | Contains the 'Body' and any metadata associated with it.
 data Payload = PayloadText Encoding Body

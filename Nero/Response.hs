@@ -1,7 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Nero.Response
-  ( Response
-  -- * Construction
+  (
+  -- * Response
+    Response
   , ok
   , movedPermanently
   -- * Status
@@ -17,6 +18,8 @@ import Data.Text.Lazy.Lens (utf8)
 import Nero.Prelude
 import Nero.Payload
 import Nero.Url
+
+-- * Response
 
 -- | An HTTP response.
 data Response = Ok Payload
