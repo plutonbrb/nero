@@ -43,9 +43,14 @@ Expect wild changes in the `API` in the near future.
 import Nero
 
 app :: Request -> Maybe Response
-app = request ^? _GET . match ("/hello/" <> text) <&> \name ->
+app = request ^? _GET . match . prefixed "/hello/" . target <&> \name ->
     ok $ "<h1>Hello " <> name <> "</h1>"
+
+main :: IO ()
+main = serve 8080 app
 ```
+
+:warning: `serve` is not implemented yet.
 
 Check more examples with its corresponding tests in the [examples directory](
 https://github.com/jdnavarro/nero/tree/master/examples).
