@@ -14,6 +14,7 @@ import Nero.Url
 -- $setup
 -- >>> :set -XOverloadedStrings
 -- >>> import Nero
+-- >>> import Nero.Payload (body)
 
 -- | Redirect with slash appended URL if only a trailing slash is needed for
 --   successful matching, otherwise it responds normally.

@@ -4,6 +4,7 @@ module SlashRedirect where
 import Test.Tasty (TestTree, defaultMain, testGroup)
 import Test.Tasty.HUnit ((@?=), testCase)
 import Nero
+import Nero.Application (slashRedirect)
 
 app :: Request -> Maybe Response
 app request = request ^? _GET

@@ -19,7 +19,7 @@ app2 request = request ^.. query . param "name" & \name ->
 
 -- | Gets the first value for the `name` param in a form encoded body.
 app3 :: Request -> Maybe Response
-app3 request = request ^? payload . param "name" <&> \name ->
+app3 request = request ^? form . param "name" <&> \name ->
     ok ("<h1>Hello " <> name <> "</h1>")
 
 -- | Gets all values for the `name` param merged from the querystring and
