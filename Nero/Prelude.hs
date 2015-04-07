@@ -1,14 +1,14 @@
 {-# OPTIONS_HADDOCK ignore-exports #-}
 {-|
-"Control.Applicative" re-exports '<$>', '<*>', 'pure'
+"Control.Applicative" re-exports '<$>', '<*>', 'pure'.
 
-"Data.Foldable" re-exports 'fold'
+"Data.Foldable" re-exports 'fold'.
 
-"Control.Monad"  re-exports '>=>'
+"Control.Monad"  re-exports '>=>'.
 
-"Data.Monoid" re-exports 'Monoid', '<>', 'mappend', 'mempty'
+"Data.Monoid" re-exports 'Monoid', '<>', 'mappend', 'mempty'.
 
-"Control.Lens"
+"Control.Lens" re-exports /everything/.
 -}
 module Nero.Prelude (module X) where
 

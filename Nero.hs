@@ -32,8 +32,7 @@ module Nero
   , dummyRequest
   , dummyRequestForm
   , dummyUrl
-  -- * Re-exports
-  -- $reexports
+  -- * Nero Prelude
   , module Nero.Prelude
   ) where
 
@@ -43,15 +42,3 @@ import Nero.Payload
 import Nero.Request
 import Nero.Response
 import Nero.Url
-
-{- $reexports
-"Control.Applicative" re-exports '<$>', '<*>', 'pure'
-
-"Data.Foldable" re-exports 'fold'
-
-"Control.Monad"  re-exports '>=>'
-
-"Data.Monoid" re-exports 'Monoid', '<>', 'mappend', 'mempty'
-
-"Control.Lens"
--}
