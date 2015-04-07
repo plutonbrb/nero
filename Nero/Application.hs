@@ -1,11 +1,16 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE LambdaCase #-}
 module Nero.Application
   (
-  -- * Trailing slash redirection
-    slashRedirect
+  -- * Server
+    Server(..)
+  -- ** Trailing slash redirection
+  , slashRedirect
   ) where
+
+import Data.Maybe (fromMaybe)
 
 import Nero.Prelude
 import Nero.Request
@@ -13,7 +18,21 @@ import Nero.Response
 import Nero.Match
 import Nero.Url
 
--- * Trailing slash redirection
+-- * Server
+
+-- | Ultimately any valid Nero server application must be transformed
+--   @Request -> IO Response@. This facilitates the creation of web
+--   server handlers.
+class Server a where
+    server :: a -> Request -> IO Response
+
+instance Server (Request -> Response) where
+    server app = pure . app
+
+instance Server (Request -> Maybe Response) where
+    server app = pure . fromMaybe (notFound "Resource not found.") . app
+
+-- ** Trailing slash redirection
 
 -- $setup
 -- >>> :set -XOverloadedStrings
