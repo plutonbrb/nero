@@ -4,19 +4,32 @@ module Combined where
 import Test.Tasty (TestTree, defaultMain, testGroup)
 import Test.Tasty.HUnit ((@?=), testCase)
 import Nero
+import Data.Text.Lazy (Text)
 
-app :: Request -> Maybe Response
-app request = respond <$> name <*> surname
+name :: Request -> Maybe Text
+name = preview (_GET . path . prefixed "/hello/")
+
+surname :: Request -> Maybe Text
+surname = preview (param "surname")
+
+app1 :: Request -> Maybe Response
+app1 = preview (_GET . path . prefixed "/hello/") <&>
+    fmap (\n -> ok $ "<h1>Hello " <> n <> "</h1>")
+
+app2 :: Request -> Maybe Response
+app2 = preview (param "surname") <&>
+    fmap (\s -> ok $ "<h1>Hello " <> s <> "</h1>")
+
+app12 :: Request -> Maybe Response
+app12 request = respond <$> name request <*> surname request 
   where
     respond n s = ok $ "<h1>Hello " <> n <> " " <> s <> "</h1>"
-    name = request ^? _GET . path . match . prefixed "/hello/" . target
-    surname = request ^? param "surname"
 
 tests :: TestTree
 tests = testGroup "Query parameters and routing"
     [ testCase "hello"
-        $ app (dummyRequest & path .~ "/hello/out"
-                            & query . at "surname" ?~ pure "there")
+        $ app12 (dummyRequest & path .~ "/hello/out"
+                              & query . at "surname" ?~ pure "there")
       @?= Just (ok "<h1>Hello out there</h1>")
     ]
 
