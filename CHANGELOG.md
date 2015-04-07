@@ -7,6 +7,7 @@ Versioning](http://semver.org/).
 ## [Unreleased][unreleased]
 ### Added
 - `split` for combinining `match` and `sep`.
+- Add `notFound` response.
 
 ## [0.2] - 2015-4-5
 ### Changed

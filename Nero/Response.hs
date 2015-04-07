@@ -5,6 +5,7 @@ module Nero.Response
     Response
   , ok
   , movedPermanently
+  , notFound
   -- * Status
   , Status
   , status
@@ -24,6 +25,7 @@ import Nero.Url
 -- | An HTTP response.
 data Response = Ok Payload
               | MovedPermanently Url
+              | NotFound Payload
                 deriving (Show,Eq)
 
 instance Location Response where
@@ -33,6 +35,7 @@ instance Location Response where
 instance HasBody Response where
     body (Ok pl) = body pl
     body (MovedPermanently _) = mempty
+    body (NotFound pl) = body pl
 
 -- * Construction
 
@@ -45,6 +48,12 @@ ok = Ok . payloadText utf8Encoding . review utf8
 --   corresponding to the given 'Url'.
 movedPermanently :: Url -> Response
 movedPermanently = MovedPermanently
+
+-- | Creates an /404 Not Found/ response from the given text. It
+--   automatically encodes the text to 'utf-8'. The /Mime type/ is
+--   text/plain.
+notFound :: Text -> Response
+notFound = Ok . payloadText utf8Encoding . review utf8
 
 -- * Status
 
@@ -59,3 +68,4 @@ instance Show Status where
 status :: Response -> Status
 status (Ok               _) = Status 200 "OK"
 status (MovedPermanently _) = Status 301 "Moved Permanently"
+status (NotFound         _) = Status 404 "Not Found"
