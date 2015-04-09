@@ -5,8 +5,11 @@ applications. Use the original modules for more specialized functions.
 -}
 module Nero
   (
+  -- * Server
+    Application
+  , Server(..)
   -- * Request
-    Request
+  , Request
   , get
   , post
   , _GET
@@ -46,6 +49,7 @@ module Nero
   ) where
 
 import Nero.Prelude
+import Nero.Application
 import Nero.Match
 import Nero.Payload
 import Nero.Request

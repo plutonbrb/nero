@@ -5,6 +5,7 @@
 module Nero.Application
   (
   -- * Server
+    Application,
     Server(..)
   -- ** Trailing slash redirection
   , slashRedirect
@@ -20,17 +21,19 @@ import Nero.Url
 
 -- * Server
 
+type Application = Request -> IO Response
+
 -- | Ultimately any valid Nero server application must be transformed
 --   @Request -> IO Response@. This facilitates the creation of web
 --   server handlers.
 class Server a where
-    server :: a -> Request -> IO Response
+    application :: a -> Application
 
 instance Server (Request -> Response) where
-    server app = pure . app
+    application app = pure . app
 
 instance Server (Request -> Maybe Response) where
-    server app = pure . fromMaybe (notFound "Resource not found.") . app
+    application app = pure . fromMaybe (notFound "Resource not found.") . app
 
 -- ** Trailing slash redirection
 
