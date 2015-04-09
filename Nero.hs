@@ -17,6 +17,7 @@ module Nero
   , form
   , params
   , param
+  , body
   -- ** GET
   , GET
   -- ** POST

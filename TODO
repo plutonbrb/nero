@@ -11,6 +11,7 @@
   - Ixed instance for `Target`.
   - Property testing for `Prism`s laws matching lens.
 - Monoid instance for `Request` and `Response`?
+- Monoid instance for `Payload`
 - `slashRedirect` shouldn't convert results, it should work on `Match` only.
 - External packages
   - Monoidal matching.

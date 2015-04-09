@@ -58,6 +58,10 @@ instance Param Request where
 instance Formed Request where
     form = payloaded . form
 
+instance HasBody Request where
+    -- TODO: `body . view payload` when `Payload` becomes `Monoid`.
+    body = maybe mempty body . preview payloaded
+
 -- | Smart constructor for 'GET' 'Request's.
 get :: Url -> Request
 get u = _GET # GET u
