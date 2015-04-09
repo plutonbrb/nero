@@ -10,11 +10,16 @@ module Nero
   , method
   , _GET
   , _POST
+  , method
   , path
   , query
   , form
   , params
   , param
+  -- ** GET
+  , GET
+  -- ** POST
+  , POST
   -- * Response
   , Response
   , ok

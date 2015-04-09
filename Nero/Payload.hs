@@ -6,7 +6,7 @@ module Nero.Payload
   , payloadText
   , Encoding
   , utf8Encoding
-  , Payloaded(..)
+  , HasPayload(..)
   -- * Body
   , Body
   , HasBody(..)
@@ -43,9 +43,9 @@ utf8Encoding = Utf8
 payloadText :: Encoding -> Body -> Payload
 payloadText = PayloadText
 
--- | A 'Traversal'' for types with a 'Payload'.
-class Payloaded a where
-    payload :: Traversal' a Payload
+-- | A 'Lens'' for types with a 'Payload'.
+class HasPayload a where
+    payload :: Lens' a Payload
 
 -- * Body
 

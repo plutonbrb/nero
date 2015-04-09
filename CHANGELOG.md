@@ -5,9 +5,15 @@ CHANGELOG](http://keepachangelog.com/). This project adheres to [Semantic
 Versioning](http://semver.org/).
 
 ## [Unreleased][unreleased]
+### Changed
+- `GET` and `POST` are now types on their own instead of constructors for
+  `Request`. `Request` is now sum type wrapper for the types `GET` and `POST`
+- `Payloaded` is now a `Lens'` and has been renamed to `HasPayload`.
+  `Request` is not an instance of `HasPayload` anymore, instead use `payloaded`.
 ### Added
 - `split` for combinining `match` and `sep`.
-- Add `notFound` response.
+- `notFound` response.
+- `payloaded` `Prism'` for `Request` `Payload`s.
 
 ## [0.2] - 2015-4-5
 ### Changed

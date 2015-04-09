@@ -59,17 +59,17 @@ instance Server (Request -> Maybe Response) where
 -- >>> app $ mkRequest "/bye/"
 -- Nothing
 slashRedirect
-    :: Target a
+    :: (Target a, HasUrl r, HasPath r)
     => Prism' Match Match
     -> (a -> Response) -- ^ What to respond upon matching.
-    -> Request
+    -> r
     -> Maybe Response
-slashRedirect m respond request =
-    request ^? path . match . m . target & \case
+slashRedirect m respond r =
+    r ^? path . match . m . target & \case
         Just x  -> Just $ respond x
         Nothing -> if isn't m (pure slashedPath)
                       then Nothing
                       else Just . movedPermanently
-                                $ request ^. url & path .~ slashedPath
+                                $ r ^. url & path .~ slashedPath
   where
-    slashedPath = request ^. path <> "/"
+    slashedPath = r ^. path <> "/"

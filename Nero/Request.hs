@@ -4,10 +4,15 @@ module Nero.Request
   (
   -- * Request
     Request
-  , method
   , _GET
   , _POST
+  , method
+  , payloaded
   , params
+  -- ** GET
+  , GET
+  -- ** POST
+  , POST
   -- * Testing
   , dummyRequest
   , dummyRequestForm
@@ -26,13 +31,13 @@ import Nero.Url
 -- * Request
 
 -- | An HTTP Request.
-data Request = GET Url
-             | POST Url Payload
+data Request = RequestGET  GET
+             | RequestPOST POST
                deriving (Show,Eq)
 
 instance HasUrl Request where
-    url f (GET  u) = GET <$> f u
-    url f (POST u p) = flip POST p <$> f u
+    url f (RequestGET (GET u)) = RequestGET . GET <$> f u
+    url f (RequestPOST (POST u pl)) = RequestPOST . flip POST pl <$> f u
 
 instance HasHost Request where
     host = url . host
@@ -43,44 +48,37 @@ instance HasPath Request where
 instance HasQuery Request where
     query = url . query
 
-instance Payloaded Request where
-    payload _ (GET u)    = GET  <$> pure u
-    payload f (POST u p) = POST <$> pure u <*> f p
-
 -- | It traverses the values with the same key both in the /query string/
 --   and the /form encoded body/ of a @POST@ 'Request'.
 instance Param Request where
     param k = params . ix k . traverse
 
 instance Formed Request where
-    form = payload . form
+    form = payloaded . form
+
+-- | 'Prism'' for 'GET' 'Request's.
+_GET :: Prism' Request GET
+_GET = prism' RequestGET $ \case
+    RequestGET g -> Just g
+    _            -> Nothing
+
+-- | 'Prism'' to filter for 'POST' 'Request's.
+_POST :: Prism' Request POST
+_POST = prism' RequestPOST $ \case
+    RequestPOST p -> Just p
+    _             -> Nothing
 
 -- | Show 'Request' method.
 method :: Request -> ByteString
-method GET  {} = "GET"
-method POST {} = "POST"
+method RequestGET  {} = "GET"
+method RequestPOST {} = "POST"
 
--- | 'Prism'' to filter @GET@ 'Request's.
---
--- >>> dummyRequest ^? _GET <&> method
--- Just "GET"
--- >>> dummyRequestForm ^? _GET <&> method
--- Nothing
-_GET :: Prism' Request Request
-_GET = prism' id $ \case
-    r@GET {} -> Just r
-    _        -> Nothing
-
--- | 'Prism'' to filter for @POST@ 'Request's.
---
--- >>> dummyRequest ^? _POST <&> method
--- Nothing
--- >>> dummyRequestForm ^? _POST <&> method
--- Just "POST"
-_POST :: Prism' Request Request
-_POST = prism' id $ \case
-    r@POST {} -> Just r
-    _         -> Nothing
+-- | 'Traversal'' to obtain a 'Payload' from a 'Request'. This is not a 'Lens''
+--   because some 'Request's, such has 'GET', are not allowed to have a 'Payload'.
+payloaded :: Traversal' Request Payload
+payloaded _ rg@(RequestGET {}) = pure rg
+payloaded f (RequestPOST (POST u pl)) =
+    RequestPOST <$> (POST <$> pure u <*> f pl)
 
 -- | This 'Traversal' lets you traverse every HTTP parameter regardless of
 --   whether it's present in the /query string/ or in the /form encoded body/
@@ -94,16 +92,54 @@ _POST = prism' id $ \case
 -- >>> foldOf params request ^? ix "name"
 -- Just ["hello","out","there"]
 params :: Traversal' Request MultiMap
-params f request@(GET {}) = query f request
-params f (POST u p) = POST <$> query f u <*> form f p
+params f request@(RequestGET {}) = query f request
+params f (RequestPOST (POST u pl)) =
+    RequestPOST <$> (POST <$> query f u <*> form f pl)
+
+-- ** GET
+
+-- | A @GET@ 'Request'.
+data GET = GET Url deriving (Show,Eq)
+
+instance HasUrl GET where
+    url f (GET u) = GET <$> f u
+
+instance HasHost GET where
+    host = url . host
+
+instance HasPath GET where
+    path = url . path
+
+instance HasQuery GET where
+    query = url . query
+
+-- ** POST
+
+-- | A @POST@ 'Request'.
+data POST = POST Url Payload deriving (Show,Eq)
+
+instance HasUrl POST where
+    url f (POST u p) = flip POST p <$> f u
+
+instance HasPayload POST where
+    payload f (POST u p) = POST u <$> f p
+
+instance HasHost POST where
+    host = url . host
+
+instance HasPath POST where
+    path = url . path
+
+instance HasQuery POST where
+    query = url . query
 
 -- * Testing
 
 -- | An empty GET request useful for testing.
 dummyRequest :: Request
-dummyRequest = GET dummyUrl
+dummyRequest = RequestGET $ GET dummyUrl
 
 -- | An empty POST request with an empty /form encoded body/ useful for
 --   testing.
 dummyRequestForm :: Request
-dummyRequestForm = POST dummyUrl dummyPayloadForm
+dummyRequestForm = RequestPOST $ POST dummyUrl dummyPayloadForm
