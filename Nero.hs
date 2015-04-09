@@ -7,7 +7,8 @@ module Nero
   (
   -- * Request
     Request
-  , method
+  , get
+  , post
   , _GET
   , _POST
   , method

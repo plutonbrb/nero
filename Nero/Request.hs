@@ -4,6 +4,8 @@ module Nero.Request
   (
   -- * Request
     Request
+  , get
+  , post
   , _GET
   , _POST
   , method
@@ -55,6 +57,14 @@ instance Param Request where
 
 instance Formed Request where
     form = payloaded . form
+
+-- | Smart constructor for 'GET' 'Request's.
+get :: Url -> Request
+get u = _GET # GET u
+
+-- | Smart constructor for 'POST' 'Request's.
+post :: Url -> Payload -> Request
+post u p = _POST # POST u p
 
 -- | 'Prism'' for 'GET' 'Request's.
 _GET :: Prism' Request GET

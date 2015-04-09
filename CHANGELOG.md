@@ -14,6 +14,7 @@ Versioning](http://semver.org/).
 - `split` for combinining `match` and `sep`.
 - `notFound` response.
 - `payloaded` `Prism'` for `Request` `Payload`s.
+- Smart constructors for `GET` and `POST`.
 
 ## [0.2] - 2015-4-5
 ### Changed
