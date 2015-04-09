@@ -12,6 +12,7 @@ module Nero.Param
     Param(..)
   -- * MultiMap
   , MultiMap
+  , fromList
   , encodeMultiMap
   ) where
 
@@ -61,6 +62,9 @@ instance At MultiMap where
 
 instance Param MultiMap where
     param k = ix k . traverse
+
+fromList :: [(Text, [Text])] -> MultiMap
+fromList = MultiMap . Map.fromListWith (++)
 
 -- | Encode a 'MultiMap' with the typical query string format. This is
 --   useful to render 'MultiMap's when testing. The web server adapter for
