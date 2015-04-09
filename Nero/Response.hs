@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE LambdaCase #-}
 module Nero.Response
   (
   -- * Response
@@ -6,6 +7,9 @@ module Nero.Response
   , ok
   , movedPermanently
   , notFound
+  , _Ok
+  , _MovedPermanently
+  , _NotFound
   -- * Status
   , Status
   , status
@@ -53,7 +57,22 @@ movedPermanently = MovedPermanently
 --   automatically encodes the text to 'utf-8'. The /Mime type/ is
 --   text/plain.
 notFound :: Text -> Response
-notFound = Ok . payloadText utf8Encoding . review utf8
+notFound = NotFound . payloadText utf8Encoding . review utf8
+
+_Ok :: Prism' Response Payload
+_Ok = prism' Ok $ \case
+    Ok p -> Just p
+    _ -> Nothing
+
+_MovedPermanently :: Prism' Response Url
+_MovedPermanently = prism' MovedPermanently $ \case
+    MovedPermanently u -> Just u
+    _ -> Nothing
+
+_NotFound :: Prism' Response Payload
+_NotFound = prism' NotFound $ \case
+    NotFound p -> Just p
+    _ -> Nothing
 
 -- * Status
 
