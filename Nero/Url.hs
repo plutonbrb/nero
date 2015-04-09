@@ -3,8 +3,8 @@
 module Nero.Url
   (
   -- * URL
-    Url
-  , Scheme
+    Url(..)
+  , Scheme(..)
   , Host
   , Path
   , Query

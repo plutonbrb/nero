@@ -26,6 +26,8 @@ module Nero
   , Response
   , ok
   , movedPermanently
+  -- * URL
+  , Url
   -- * Matching
   , match
   , Prefixed(..)
