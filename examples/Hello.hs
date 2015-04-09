@@ -11,8 +11,11 @@ app1 request = request ^? _GET . path . prefixed "/hello/"
 
 -- Match a tuple of any text and an int.
 app2 :: Request -> Maybe Response
-app2 request = request ^? _GET . path . prefixed "/hello/" . split "/" . suffixed "/" . target
-        <&> \(name,uid) -> ok $ "<h1>Hello " <> name <> " " <> uid <> "</h1>"
+app2 request = request ^? _GET
+                        . path
+                        . prefixed "/hello/" . split "/" . suffixed "/"
+                        . target <&> \(name,uid) ->
+    ok $ "<h1>Hello " <> name <> " " <> uid <> "</h1>"
 
 -- | Named matching
 -- app4 :: Request -> Maybe Response
