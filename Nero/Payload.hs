@@ -22,6 +22,7 @@ import Data.ByteString.Lazy (ByteString)
 
 import Nero.Prelude
 import Nero.Param
+import Nero.Binary
 
 -- * Payload
 
@@ -62,7 +63,7 @@ class HasBody a where
 instance HasBody Payload where
     body (PayloadText _ b) = b
     body (PayloadBinary b) = b
-    body (PayloadForm fo)  = encodeMultiMap fo
+    body (PayloadForm fo)  = render fo
 
 -- * Form
 

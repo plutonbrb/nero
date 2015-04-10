@@ -40,7 +40,7 @@ instance Server (Request -> Maybe Response) where
 -- $setup
 -- >>> :set -XOverloadedStrings
 -- >>> import Nero
--- >>> import Nero.Payload (body)
+-- >>> import Nero.Binary (render)
 
 -- | Redirect with slash appended URL if only a trailing slash is needed for
 --   successful matching, otherwise it responds normally.
@@ -51,7 +51,7 @@ instance Server (Request -> Maybe Response) where
 --
 -- >>> app (mkRequest "/hello/there") <&> status
 -- Just "301 Moved Permanently"
--- >>> app (mkRequest "/hello/there") >>= preview location
+-- >>> app (mkRequest "/hello/there") >>= preview location <&> render
 -- Just "http://example.com/hello/there/"
 --
 -- >>> app (mkRequest "/hello/there/") <&> status

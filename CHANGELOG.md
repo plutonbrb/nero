@@ -16,6 +16,7 @@ Versioning](http://semver.org/).
 - `payloaded` `Prism'` for `Request` `Payload`s.
 - Smart constructors for `GET` and `POST`.
 - `HasBody` instance for `Request`.
+- `Binary` module.
 
 ## [0.2] - 2015-4-5
 ### Changed

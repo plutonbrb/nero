@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE LambdaCase #-}
 module Nero.Url
   (
   -- * URL
@@ -18,25 +18,31 @@ module Nero.Url
   , dummyUrl
   ) where
 
-import Data.ByteString (ByteString)
-import qualified Data.ByteString.Char8 as B8
+import Prelude hiding (null)
+import Data.ByteString.Lazy (ByteString)
 import Data.Text.Lazy (Text)
-import qualified Data.Text.Lazy as T
+import Data.Text.Lazy.Lens (utf8)
 
 import Nero.Prelude
 import Nero.Param
+import Nero.Binary
 
 -- * URL
 
 -- | Composite type of a 'Scheme', 'Host', 'Path', 'Query'.
-data Url = Url Scheme Host Path Query deriving Eq
+data Url = Url Scheme Host Path Query deriving (Show,Eq)
 
 -- | The scheme given in the 'Url', i.e. @http@ or @https@.
-data Scheme = Http | Https deriving Eq
+data Scheme = Http | Https deriving (Show,Eq)
 
-instance Show Scheme where
-    show Http  = "http://"
-    show Https = "https://"
+instance Renderable Scheme where
+    render Http  = "http"
+    render Https = "https"
+
+instance Parseable Scheme where
+    parse "http"  = Just Http
+    parse "https" = Just Https
+    parse       _ = Nothing
 
 -- | The host name of a 'Url'.
 type Host = ByteString
@@ -46,10 +52,6 @@ type Path = Text
 
 -- | The /query string/ in the form of a 'MultiMap'.
 type Query = MultiMap
-
-instance Show Url where
-    show (Url s h p q) =
-        "\"" <> show s <> B8.unpack h <> T.unpack p <> show q <> "\""
 
 -- | 'Lens'' for types with an 'Url'.
 class HasUrl a where
@@ -82,6 +84,12 @@ instance HasQuery Url where
 
 instance Param Url where
     param k = query . param k
+
+instance Renderable Url where
+    render (Url s h p q) = render s <> "://" <> h <> utf8 # p <> (
+        if not (null q)
+           then "?" <> render q
+           else mempty)
 
 -- * Testing
 

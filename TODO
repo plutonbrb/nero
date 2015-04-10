@@ -13,6 +13,7 @@
 - Monoid instance for `Request` and `Response`?
 - Monoid instance for `Payload`
 - `slashRedirect` shouldn't convert results, it should work on `Match` only.
+- Handle URL fragments.
 - External packages
   - Monoidal matching.
   - WAI handler.
