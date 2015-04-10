@@ -47,7 +47,7 @@ instance Server (Request -> Maybe Response) where
 --
 -- >>> let mkRequest p = dummyRequest & host .~ "example.com" & path .~ p
 -- >>> let respond name = ok $ "<h1>Hello " <> name <> "</h1>"
--- >>> let app = slashRedirect (prefixed "/hello/" . suffixed "/") respond
+-- >>> let app = slashRedirect (prefixed "/hello/" . suffixed "/") respond :: Request -> Maybe Response
 --
 -- >>> app (mkRequest "/hello/there") <&> status
 -- Just "301 Moved Permanently"
