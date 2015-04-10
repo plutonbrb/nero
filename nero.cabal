@@ -2,7 +2,7 @@ name:                nero
 version:             0.2
 synopsis:            Lens-based HTTP toolkit
 description:
-  This package represents the core of the @Nero@ HTTP toolkit.
+  This package provides the core functionality of the @Nero@ HTTP toolkit.
   .
   Check the <https://github.com/jdnavarro/nero#nero README> for a more
   detailed explanation.
