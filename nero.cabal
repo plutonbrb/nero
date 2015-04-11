@@ -4,10 +4,10 @@ synopsis:            Lens-based HTTP toolkit
 description:
   This package provides the core functionality of the @Nero@ HTTP toolkit.
   .
-  Check the <https://github.com/jdnavarro/nero#nero README> for a more
+  Check the <https://github.com/plutonbrb/nero#nero README> for a more
   detailed explanation.
-homepage:            https://github.com/jdnavarro/nero
-bug-reports:         https://github.com/jdnavarro/nero/issues
+homepage:            https://github.com/plutonbrb/nero
+bug-reports:         https://github.com/plutonbrb/nero/issues
 license:             BSD3
 license-file:        LICENSE
 author:              Danny Navarro
@@ -22,7 +22,7 @@ extra-source-files:  README.md CHANGELOG.md
 
 source-repository head
   type: git
-  location: git://github.com/jdnavarro/nero.git
+  location: git://github.com/plutonbrb/nero.git
 
 library
   exposed-modules:     Nero,

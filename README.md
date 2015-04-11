@@ -35,7 +35,7 @@ Expect wild changes in the `API` in the near future.
   functional under the hood. Haskell veterans can take advantage of the
   powerful lens combinators.
 
-[![Hackage Version](https://img.shields.io/hackage/v/nero.svg)](https://hackage.haskell.org/package/nero) [![Build Status](https://img.shields.io/travis/jdnavarro/nero.svg)](https://travis-ci.org/jdnavarro/nero)
+[![Hackage Version](https://img.shields.io/hackage/v/nero.svg)](https://hackage.haskell.org/package/nero) [![Build Status](https://img.shields.io/travis/plutonbrb/nero.svg)](https://travis-ci.org/plutonbrb/nero)
 
 ## Example
 
@@ -53,6 +53,6 @@ main = serve 8080 app
 :warning: `serve` is not implemented yet.
 
 Check more examples with its corresponding tests in the [examples directory](
-https://github.com/jdnavarro/nero/tree/master/examples).
+https://github.com/plutonbrb/nero/tree/master/examples).
 
 [lens-home]: [https://lens.github.io/]

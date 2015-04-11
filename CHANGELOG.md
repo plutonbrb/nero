@@ -36,7 +36,7 @@ Versioning](http://semver.org/).
 - HTTP parameters handling for both *query string* and form encoded `POST`s.
 - Trailing slash redirection.
 
-[unreleased]: https://github.com/jdnavarro/nero/compare/v0.2...HEAD
-[0.2]: https://github.com/jdnavarro/nero/compare/v0.1.1...v0.2
-[0.1.1]: https://github.com/jdnavarro/nero/compare/v0.1...v0.1.1
-[0.1]: https://github.com/jdnavarro/nero/compare/a2c3f720...v0.1
+[unreleased]: https://github.com/plutonbrb/nero/compare/v0.2...HEAD
+[0.2]: https://github.com/plutonbrb/nero/compare/v0.1.1...v0.2
+[0.1.1]: https://github.com/plutonbrb/nero/compare/v0.1...v0.1.1
+[0.1]: https://github.com/plutonbrb/nero/compare/a2c3f720...v0.1
