@@ -4,19 +4,26 @@ follows the formatting recommendations from [Keep a
 CHANGELOG](http://keepachangelog.com/). This project adheres to [Semantic
 Versioning](http://semver.org/).
 
-## [Unreleased][unreleased]
+## [0.3][0.3]
+This release includes changes driven by the initial implementation of
+[`nero-wai`](https://github.com/plutonbrb/nero-wai).
 ### Changed
 - `GET` and `POST` are now types on their own instead of constructors for
   `Request`. `Request` is now sum type wrapper for the types `GET` and `POST`
 - `Payloaded` is now a `Lens'` and has been renamed to `HasPayload`.
   `Request` is not an instance of `HasPayload` anymore, instead use `payloaded`.
+- Rename `server` -> `application` in `Server` type class.
+
 ### Added
-- `split` for combinining `match` and `sep`.
+- `split` for combining `match` and `sep`.
 - `notFound` response.
 - `payloaded` `Prism'` for `Request` `Payload`s.
-- Smart constructors for `GET` and `POST`.
 - `HasBody` instance for `Request`.
-- `Binary` module.
+- `Prism'` for `Response`s with different status.
+- `null`, `fromList` for `MultiMap`.
+- `Binary` module including `Renderable` and `Parseable` classes.
+- `Renderable` instance for `Url`.
+- Single `Response` instance for `Server`.
 
 ## [0.2] - 2015-4-5
 ### Changed
@@ -37,6 +44,7 @@ Versioning](http://semver.org/).
 - Trailing slash redirection.
 
 [unreleased]: https://github.com/plutonbrb/nero/compare/v0.2...HEAD
+[0.3]: https://github.com/plutonbrb/nero/compare/v0.2...v0.3
 [0.2]: https://github.com/plutonbrb/nero/compare/v0.1.1...v0.2
 [0.1.1]: https://github.com/plutonbrb/nero/compare/v0.1...v0.1.1
 [0.1]: https://github.com/plutonbrb/nero/compare/a2c3f720...v0.1

@@ -1,5 +1,5 @@
 name:                nero
-version:             0.2
+version:             0.3
 synopsis:            Lens-based HTTP toolkit
 description:
   This package provides the core functionality of the @Nero@ HTTP toolkit.
