@@ -43,11 +43,11 @@ changes in the `API` until the `1.0.0` release.
 ```haskell
 {-# LANGUAGE OverloadedStrings #-}
 import Nero.Prelude
-import Nero (Request, Response, _GET, prefixed, target, ok)
+import Nero (Request, Response, _GET, prefixed, ok)
 import Nero.Warp (serve) -- from `nero-warp`
 
 app :: Request -> Maybe Response
-app request = request ^? _GET . prefixed "/hello/" . target <&> \name ->
+app request = request ^? _GET . prefixed "/hello/" <&> \name ->
     ok $ "<h1>Hello " <> name <> "</h1>"
 
 main :: IO ()
