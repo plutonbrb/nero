@@ -12,7 +12,7 @@ license:             BSD3
 license-file:        LICENSE
 author:              Danny Navarro
 maintainer:          Danny Navarro <j@dannynavarro.net>
-stability:           alpha
+stability:           experimental
 copyright:           Copyright (C) 2015 J. Daniel Navarro
 category:            Web
 build-type:          Simple
