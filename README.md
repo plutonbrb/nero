@@ -1,6 +1,6 @@
 # Nero
 
-> A [Lens][lens]-based HTTP toolkit.
+> A [`Lens`][lens]-based HTTP toolkit.
 
 :warning: The following is a declaration of intentions.  Expect wild
 changes in the `API` until the `1.0.0` release.
@@ -31,8 +31,8 @@ changes in the `API` until the `1.0.0` release.
 
   <!-- Is pluggable right here? Sounds out of fashion -->
 
-* **Power of [Haskell] and [Lens][lens]**: the [Lens][lens]-based API
-  enables a style familiar to imperative programmers [Lens][lens] while
+* **Power of [Haskell] and [`Lens`][lens]**: the [`Lens`][lens]-based API
+  enables a style familiar to imperative programmers [`Lens`][lens] while
   being purely functional under the hood. Veteran *Haskellers* can take
   advantage of the powerful lens combinators.
 
@@ -58,4 +58,4 @@ More examples in the [examples directory](
 https://github.com/plutonbrb/nero/tree/master/examples).
 
 [Haskell]: https://www.haskell.org/
-[lens]: [https://lens.github.io/]
+[lens]: https://lens.github.io/
