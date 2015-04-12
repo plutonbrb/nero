@@ -54,7 +54,7 @@ class HasPayload a where
 --   'Response'.
 type Body = ByteString
 
--- Can't be made a Lens easily because of putative parsing failues for 'Form'
+-- Can't be made a Lens easily because of putative parsing failures for 'Form'
 -- TODO: Is it worth making this a traversal?
 -- | Get the 'Body' for types with one.
 class HasBody a where

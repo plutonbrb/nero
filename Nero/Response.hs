@@ -59,16 +59,22 @@ movedPermanently = MovedPermanently
 notFound :: Text -> Response
 notFound = NotFound . payloadText utf8Encoding . review utf8
 
+-- | A 'Prism'' to /obtain\/convert/ a 'Payload' /from\/to/ a /200 OK/
+--   'Response'.
 _Ok :: Prism' Response Payload
 _Ok = prism' Ok $ \case
     Ok p -> Just p
     _ -> Nothing
 
+-- | A 'Prism'' to /obtain\/convert/ a 'Payload' /from\/to/ a
+--   /301 Moved Permanently/ 'Response'.
 _MovedPermanently :: Prism' Response Url
 _MovedPermanently = prism' MovedPermanently $ \case
     MovedPermanently u -> Just u
     _ -> Nothing
 
+-- | A 'Prism'' to /obtain\/convert/ a 'Payload' /from\/to/ a /404 Not Found/
+--   'Response'.
 _NotFound :: Prism' Response Payload
 _NotFound = prism' NotFound $ \case
     NotFound p -> Just p

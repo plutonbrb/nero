@@ -24,8 +24,8 @@ import Nero.Url
 type Application = Request -> IO Response
 
 -- | Ultimately any valid Nero server application must be transformed
---   @Request -> IO Response@. This facilitates the creation of web
---   server handlers.
+--   @'Request' -> 'IO' 'Response'@. This type class facilitates the
+--   creation of web server handling @Nero@ applications.
 class Server a where
     application :: a -> Application
 
@@ -36,7 +36,7 @@ instance Server (Request -> Response) where
     application app = pure . app
 
 instance Server (Request -> Maybe Response) where
-    application app = pure . fromMaybe (notFound "Resource not found.") . app
+    application app = pure . fromMaybe (notFound "404: Resource not found.") . app
 
 -- ** Trailing slash redirection
 

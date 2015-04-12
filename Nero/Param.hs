@@ -2,9 +2,9 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TypeFamilies #-}
 {-|
-This module is mainly intended to be used for rare occassions.
-"Nero.Request" and "Nero.Payload" should provide everything you need
-for HTTP parameters.
+This module is mainly intended for internal use. "Nero.Request" and
+"Nero.Payload" should provide everything you need for dealing with HTTP
+parameters.
 -}
 module Nero.Param
   (
@@ -33,13 +33,13 @@ class Param a where
 
 -- * MultiMap
 
--- | A 'Map' with multiple values. Also known as a @MultiDict@ in most web
+-- | A 'Map' with multiple values. Also known as a @MultiDict@ in other web
 --   frameworks.
 newtype MultiMap = MultiMap { unMultiMap :: Map Text [Text] }
                    deriving (Eq, Show)
 
--- | The default monoid implementation is left biased, this implementation
---   /mappends/ the values.
+-- | The default monoid implementation of "Data.Map" is left biased, this
+--   implementation 'mappend's the values.
 instance Monoid MultiMap where
     mappend (MultiMap m1) (MultiMap m2) =
         MultiMap $ Map.unionWith mappend m1 m2
@@ -60,10 +60,7 @@ instance At MultiMap where
 instance Param MultiMap where
     param k = ix k . traverse
 
--- | Encode a 'MultiMap' with the typical query string format. This is
---   useful to render 'MultiMap's when testing. The web server adapter for
---   @Nero@ should do this for you in the real application.
-
+-- | Encode a 'MultiMap' with the typical query string format.
 instance Renderable MultiMap where
     render = review utf8
            . intercalate "&"
@@ -72,8 +69,10 @@ instance Renderable MultiMap where
            . fold . Map.mapWithKey (map . mappend . flip mappend "=")
            . unMultiMap
 
+-- | Like 'Map.fromList' from "Data.Map" but 'mappend'ing the values.
 fromList :: [(Text, [Text])] -> MultiMap
 fromList = MultiMap . Map.fromListWith (++)
 
+-- | Is the map empty?
 null :: MultiMap -> Bool
 null = Map.null . unMultiMap

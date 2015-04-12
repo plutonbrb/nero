@@ -1,19 +1,23 @@
 {-# OPTIONS_HADDOCK ignore-exports #-}
 {-|
-"Control.Applicative" re-exports '<$>', '<*>', 'pure'.
 
-"Data.Foldable" re-exports 'fold'.
+This module is meant to be imported unqualified. It takes care of
+different versions of `base` and re-exports the following:
 
-"Control.Monad"  re-exports '>=>'.
+- /everything/ from "Control.Lens".
+-
+- '<$>', '<*>', 'pure' from "Control.Applicative".
 
-"Data.Monoid" re-exports 'Monoid', '<>', 'mappend', 'mempty'.
+- 'fold' form "Data.Foldable".
 
-"Control.Lens" re-exports /everything/.
+- '>=>', '<=<' from "Control.Monad".
+
+- 'Monoid', '<>', 'mappend', 'mempty' from "Data.Monoid".
 -}
 module Nero.Prelude (module X) where
 
 import Control.Applicative as X ((<$>), (<*>), pure)
 import Data.Foldable as X (fold)
-import Control.Monad as X ((>=>))
+import Control.Monad as X ((>=>), (<=<))
 import Data.Monoid as X (Monoid, (<>), mappend, mempty)
 import Control.Lens as X
