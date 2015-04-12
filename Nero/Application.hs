@@ -29,6 +29,9 @@ type Application = Request -> IO Response
 class Server a where
     application :: a -> Application
 
+instance Server Response where
+    application response = pure . const response
+
 instance Server (Request -> Response) where
     application app = pure . app
 
