@@ -4,7 +4,7 @@ follows the formatting recommendations from [Keep a
 CHANGELOG](http://keepachangelog.com/). This project adheres to [Semantic
 Versioning](http://semver.org/).
 
-## [0.3][0.3]
+## [0.3][0.3] - 2015-4-12
 This release includes changes driven by the initial implementation of
 [`nero-wai`](https://github.com/plutonbrb/nero-wai).
 ### Changed
