@@ -4,6 +4,13 @@ follows the formatting recommendations from [Keep a
 CHANGELOG](http://keepachangelog.com/). This project adheres to [Semantic
 Versioning](http://semver.org/).
 
+## [0.3.1][0.3.1] - 2015-4-16
+### Fixed
+- Make examples private modules so they can be built.
+
+### Added
+- Lower bounds versions for dependencies.
+
 ## [0.3][0.3] - 2015-4-12
 This release includes changes driven by the initial implementation of
 [`nero-wai`](https://github.com/plutonbrb/nero-wai).
@@ -43,7 +50,7 @@ This release includes changes driven by the initial implementation of
 - HTTP parameters handling for both *query string* and form encoded `POST`s.
 - Trailing slash redirection.
 
-[unreleased]: https://github.com/plutonbrb/nero/compare/v0.2...HEAD
+[0.3.1]: https://github.com/plutonbrb/nero/compare/v0.3...v0.3.1
 [0.3]: https://github.com/plutonbrb/nero/compare/v0.2...v0.3
 [0.2]: https://github.com/plutonbrb/nero/compare/v0.1.1...v0.2
 [0.1.1]: https://github.com/plutonbrb/nero/compare/v0.1...v0.1.1
