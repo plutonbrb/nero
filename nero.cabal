@@ -60,6 +60,9 @@ test-suite examples
   hs-source-dirs:      examples
   main-is:             test.hs
   ghc-options:         -Wall -threaded
+  other-modules:       Hello,
+                       SlashRedirect,
+                       Combined
   build-depends:       base >= 4.6 && <4.9,
                        bytestring,
                        text,
