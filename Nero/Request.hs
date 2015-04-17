@@ -21,11 +21,13 @@ module Nero.Request
   ) where
 
 import Data.ByteString (ByteString)
+import qualified Data.Text.Lazy as T
 
 import Nero.Prelude
 import Nero.Param
 import Nero.Payload
 import Nero.Url
+import Nero.Match
 
 -- $setup
 -- >>> :set -XOverloadedStrings
@@ -61,6 +63,11 @@ instance Formed Request where
 instance HasBody Request where
     -- TODO: `body . view payload` when `Payload` becomes `Monoid`.
     body = maybe mempty body . preview payloaded
+
+instance Prefixed Request where
+    prefixed pat = prism'
+        (path %~ (pat <>))
+        (traverseOf path $ T.stripPrefix pat)
 
 -- | Smart constructor for 'GET' 'Request's.
 get :: Url -> Request

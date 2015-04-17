@@ -6,7 +6,7 @@ different versions of `base` and re-exports the following:
 
 - /everything/ from "Control.Lens".
 -
-- '<$>', '<*>', 'pure' from "Control.Applicative".
+- '<$>', '<*>', '<|>', 'pure' from "Control.Applicative".
 
 - 'fold' form "Data.Foldable".
 
@@ -16,7 +16,7 @@ different versions of `base` and re-exports the following:
 -}
 module Nero.Prelude (module X) where
 
-import Control.Applicative as X ((<$>), (<*>), pure)
+import Control.Applicative as X ((<$>), (<*>), (<|>), pure)
 import Data.Foldable as X (fold)
 import Control.Monad as X ((>=>), (<=<))
 import Data.Monoid as X (Monoid, (<>), mappend, mempty)
