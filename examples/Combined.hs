@@ -1,12 +1,12 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Combined where
 
-import Control.Applicative
+import Data.Monoid (Alt(..))
 import Test.Tasty (TestTree, defaultMain, testGroup)
 import Test.Tasty.HUnit ((@?=), testCase)
 import Nero
+import Nero.Application (reroute, nest)
 import Data.Text.Lazy (Text)
-import Control.Arrow
 
 name :: Request -> Maybe Text
 name = preview (_GET . path . prefixed "/hello/")
@@ -26,9 +26,9 @@ app12 request = respond <$> name request <*> surname request
     respond n s = ok $ "<h1>Hello " <> n <> " " <> s <> "</h1>"
 
 nested :: Request -> Maybe Response
-nested = runKleisli . unwrapArrow
-       $ WrapArrow (Kleisli (preview (prefixed "/name") >=> app1))
-     <|> WrapArrow (Kleisli (preview (prefixed "/surname") >=> app2))
+nested = nest [ (prefixed "/name", app1)
+              , (prefixed "/surname", app2)
+              ]
 
 tests :: TestTree
 tests = testGroup "Query parameters and routing"

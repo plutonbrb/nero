@@ -5,13 +5,16 @@
 module Nero.Application
   (
   -- * Server
-    Application,
-    Server(..)
+    Application
+  , Server(..)
+  , reroute
+  , nest
   -- ** Trailing slash redirection
   , slashRedirect
   ) where
 
 import Data.Maybe (fromMaybe)
+import Data.Monoid (First, Alt(Alt, getAlt))
 
 import Nero.Prelude
 import Nero.Request
@@ -37,6 +40,17 @@ instance Server (Request -> Response) where
 
 instance Server (Request -> Maybe Response) where
     application app = pure . fromMaybe (notFound "404: Resource not found.") . app
+
+reroute :: Getting (First Request) Request Request
+        -> (Request -> Maybe Response)
+        -> (Request -> Maybe Response)
+reroute p app = preview p >=> app
+
+nest
+  :: Foldable t
+  => t (Getting (First Request) Request Request, Request -> Maybe Response)
+  -> Request -> Maybe Response
+nest x request = getAlt $ foldMap (Alt . (\(p,a) -> reroute p a request)) x
 
 -- ** Trailing slash redirection
 
