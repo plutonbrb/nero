@@ -1,11 +1,10 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Combined where
 
-import Data.Monoid (Alt(..))
 import Test.Tasty (TestTree, defaultMain, testGroup)
 import Test.Tasty.HUnit ((@?=), testCase)
 import Nero
-import Nero.Application (reroute, nest)
+import Nero.Application (nest)
 import Data.Text.Lazy (Text)
 
 name :: Request -> Maybe Text

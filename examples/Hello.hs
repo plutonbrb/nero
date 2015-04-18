@@ -5,6 +5,9 @@ import Test.Tasty (TestTree, defaultMain, testGroup)
 import Test.Tasty.HUnit ((@?=), testCase)
 import Nero
 
+app :: Request -> Identity Response
+app = const . pure $ ok "hello"
+
 app1 :: Request -> Maybe Response
 app1 request = request ^? _GET . path . prefixed "/hello/"
      <&> \name -> ok $ "<h1>Hello " <> name <> "</h1>"

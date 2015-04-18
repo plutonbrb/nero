@@ -16,6 +16,7 @@ module Nero.Application
 import Data.Maybe (fromMaybe)
 import Data.Monoid (First, Alt(Alt, getAlt))
 
+import Control.Applicative
 import Nero.Prelude
 import Nero.Request
 import Nero.Response
@@ -24,33 +25,33 @@ import Nero.Url
 
 -- * Server
 
-type Application = Request -> IO Response
+type Application c = Request -> c Response
 
 -- | Ultimately any valid Nero server application must be transformed
 --   @'Request' -> 'IO' 'Response'@. This type class facilitates the
 --   creation of web server handling @Nero@ applications.
-class Server a where
-    application :: a -> Application
+class Server c where
+    server :: Application c -> Application IO
 
-instance Server Response where
-    application response = pure . const response
+instance Server Identity where
+    server app = pure . runIdentity . app
 
-instance Server (Request -> Response) where
-    application app = pure . app
+instance Server Maybe where
+    server app = pure . fromMaybe (notFound "404: Resource not found.") . app
 
-instance Server (Request -> Maybe Response) where
-    application app = pure . fromMaybe (notFound "404: Resource not found.") . app
+instance Server IO where
+    server = id
 
-reroute :: Getting (First Request) Request Request
-        -> (Request -> Maybe Response)
-        -> (Request -> Maybe Response)
-reroute p app = preview p >=> app
+reroute :: Alternative c
+        => Getting (First Request) Request Request
+        -> Application c
+        -> Application c
+reroute p app = maybe empty app . preview p
 
-nest
-  :: Foldable t
-  => t (Getting (First Request) Request Request, Request -> Maybe Response)
-  -> Request -> Maybe Response
-nest x request = getAlt $ foldMap (Alt . (\(p,a) -> reroute p a request)) x
+nest :: (Foldable t, Alternative c)
+     => t (Getting (First Request) Request Request, Application c)
+     -> Application c
+nest xs request = getAlt $ foldMap (Alt . (\(p,a) -> reroute p a request)) xs
 
 -- ** Trailing slash redirection
 
@@ -79,17 +80,17 @@ nest x request = getAlt $ foldMap (Alt . (\(p,a) -> reroute p a request)) x
 -- >>> app $ mkRequest "/bye/"
 -- Nothing
 slashRedirect
-    :: (Target a, HasUrl r, HasPath r)
+    :: (Alternative c, Target a, HasUrl r, HasPath r)
     => Prism' Match Match
     -> (a -> Response) -- ^ What to respond upon matching.
     -> r
-    -> Maybe Response
+    -> c Response
 slashRedirect m respond r =
     r ^? path . match . m . target & \case
-        Just x  -> Just $ respond x
+        Just x  -> pure $ respond x
         Nothing -> if isn't m (pure slashedPath)
-                      then Nothing
-                      else Just . movedPermanently
+                      then empty
+                      else pure . movedPermanently
                                 $ r ^. url & path .~ slashedPath
   where
     slashedPath = r ^. path <> "/"
