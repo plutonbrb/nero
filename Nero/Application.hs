@@ -1,7 +1,13 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE LambdaCase #-}
+
+#ifndef MIN_VERSION_base
+#define MIN_VERSION_base(x,y,z) 1
+#endif
+
 module Nero.Application
   (
   -- * Server
@@ -13,9 +19,12 @@ module Nero.Application
   , slashRedirect
   ) where
 
-import Control.Applicative (Alternative, empty)
 import Data.Maybe (fromMaybe)
+#if MIN_VERSION_base(4,8,0)
 import Data.Monoid (Alt(Alt, getAlt))
+#else
+import Nero.Compat (Alt(Alt, getAlt))
+#endif
 
 import Nero.Prelude
 import Nero.Request
