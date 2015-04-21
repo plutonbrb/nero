@@ -13,15 +13,20 @@ module Nero.Application
   , slashRedirect
   ) where
 
+import Control.Applicative (Alternative, empty)
 import Data.Maybe (fromMaybe)
-import Data.Monoid (First, Alt(Alt, getAlt))
+import Data.Monoid (Alt(Alt, getAlt))
 
-import Control.Applicative
 import Nero.Prelude
 import Nero.Request
 import Nero.Response
 import Nero.Match
 import Nero.Url
+
+-- $setup
+-- >>> :set -XOverloadedStrings
+-- >>> import Nero
+-- >>> import Nero.Binary (render)
 
 -- * Server
 
@@ -42,23 +47,28 @@ instance Server Maybe where
 instance Server IO where
     server = id
 
+-- | From a given 'Application' create another 'Application' taking a
+--   'Request' passing through a 'Prism'' 'Request' 'Request'.
+--
+-- >>> let app = fmap (ok . ("Hello " <>)) . preview (_GET . path . prefixed "/hello/")
+-- >>> app (dummyRequest & path .~ "/front")
+-- Nothing
+-- >>> let app' = reroute (prefixed "/front") app
+-- >>> app' (dummyRequest & path .~ "/front/hello/there") <&> body
+-- Just "Hello there"
 reroute :: Alternative c
-        => Getting (First Request) Request Request
+        => Prism' Request Request
         -> Application c
         -> Application c
 reroute p app = maybe empty app . preview p
 
 nest :: (Foldable t, Alternative c)
-     => t (Getting (First Request) Request Request, Application c)
+     => t (APrism' Request Request, Application c)
      -> Application c
-nest xs request = getAlt $ foldMap (Alt . (\(p,a) -> reroute p a request)) xs
+nest xs request =
+    getAlt $ foldMap (Alt . \(p,a) -> reroute (clonePrism p) a request) xs
 
 -- ** Trailing slash redirection
-
--- $setup
--- >>> :set -XOverloadedStrings
--- >>> import Nero
--- >>> import Nero.Binary (render)
 
 -- | Redirect with slash appended URL if only a trailing slash is needed for
 --   successful matching, otherwise it responds normally.
