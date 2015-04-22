@@ -4,6 +4,10 @@ follows the formatting recommendations from [Keep a
 CHANGELOG](http://keepachangelog.com/). This project adheres to [Semantic
 Versioning](http://semver.org/).
 
+## [Unreleased][unreleased]
+### Added
+- `nest` and `reroute`.
+
 ## [0.3.1][0.3.1] - 2015-4-16
 ### Fixed
 - Make examples private modules so they can be built.
@@ -50,6 +54,7 @@ This release includes changes driven by the initial implementation of
 - HTTP parameters handling for both *query string* and form encoded `POST`s.
 - Trailing slash redirection.
 
+[unreleased]: https://github.com/plutonbrb/nero/compare/v0.3.1...HEAD
 [0.3.1]: https://github.com/plutonbrb/nero/compare/v0.3...v0.3.1
 [0.3]: https://github.com/plutonbrb/nero/compare/v0.2...v0.3
 [0.2]: https://github.com/plutonbrb/nero/compare/v0.1.1...v0.2
