@@ -25,9 +25,7 @@ app12 request = respond <$> name request <*> surname request
     respond n s = ok $ "<h1>Hello " <> n <> " " <> s <> "</h1>"
 
 nested :: Request -> Maybe Response
-nested = nest [ (prefixed "/name", app1)
-              , (prefixed "/surname", app2)
-              ]
+nested = nest (prefixed "/name") [app1, app2]
 
 tests :: TestTree
 tests = testGroup "Query parameters and routing"
@@ -40,7 +38,7 @@ tests = testGroup "Query parameters and routing"
           $ nested (dummyRequest & path .~ "/name/hello/there")
         @?= Just (ok "<h1>Hello there</h1>")
       , testCase "second"
-           $ nested (dummyRequest & path .~ "/surname"
+           $ nested (dummyRequest & path  .~ "/name/"
                                   & query . at "surname" ?~ pure "there")
          @?= Just (ok "<h1>Hello there</h1>")
       ]

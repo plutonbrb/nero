@@ -13,6 +13,7 @@ module Nero.Application
   -- * Server
     Application
   , Server(..)
+  -- ** Routing
   , reroute
   , nest
   -- ** Trailing slash redirection
@@ -56,6 +57,8 @@ instance Server Maybe where
 instance Server IO where
     server = id
 
+-- ** Routing
+
 -- | From a given 'Application' create another 'Application' taking a
 --   'Request' passing through a 'Prism'' 'Request' 'Request'.
 --
@@ -71,11 +74,19 @@ reroute :: Alternative c
         -> Application c
 reroute p app = maybe empty app . preview p
 
+-- | Take the first 'Application' that successfully responds after rerouting.
+--
+-- >>> let mkApp str = fmap (ok . ((str <> " ") <>)) . preview (_GET . path . prefixed ("/" <> str <> "/"))
+-- >>> let req = dummyRequest & path .~ "/front/hello/there"
+-- >>> let app = nest (prefixed "/front") [mkApp "bye", mkApp "hello"]
+-- >>> app req <&> body
+-- Just "hello there"
 nest :: (Foldable t, Alternative c)
-     => t (APrism' Request Request, Application c)
+     => Prism' Request Request
+     -> t (Application c)
      -> Application c
-nest xs request =
-    getAlt $ foldMap (Alt . \(p,a) -> reroute (clonePrism p) a request) xs
+nest p xs request =
+    getAlt $ foldMap (Alt . \app -> reroute p app request) xs
 
 -- ** Trailing slash redirection
 
