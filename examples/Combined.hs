@@ -1,8 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Combined where
 
-import Test.Tasty (TestTree, defaultMain, testGroup)
-import Test.Tasty.HUnit ((@?=), testCase)
 import Nero
 import Nero.Application (nest)
 import Data.Text.Lazy (Text)
@@ -26,23 +24,3 @@ app12 request = respond <$> name request <*> surname request
 
 nested :: Request -> Maybe Response
 nested = nest (prefixed "/name") [app1, app2]
-
-tests :: TestTree
-tests = testGroup "Query parameters and routing"
-    [ testCase "hello"
-        $ app12 (dummyRequest & path .~ "/hello/out"
-                              & query . at "surname" ?~ pure "there")
-      @?= Just (ok "<h1>Hello out there</h1>")
-    , testGroup "nested"
-      [ testCase "first"
-          $ nested (dummyRequest & path .~ "/name/hello/there")
-        @?= Just (ok "<h1>Hello there</h1>")
-      , testCase "second"
-           $ nested (dummyRequest & path  .~ "/name/"
-                                  & query . at "surname" ?~ pure "there")
-         @?= Just (ok "<h1>Hello there</h1>")
-      ]
-    ]
-
-main :: IO ()
-main = defaultMain tests

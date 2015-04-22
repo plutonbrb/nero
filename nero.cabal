@@ -55,20 +55,3 @@ test-suite doctests
   build-depends:       base >= 4.6 && <4.9,
                        Glob,
                        doctest
-
-test-suite examples
-  default-language:    Haskell2010
-  type:                exitcode-stdio-1.0
-  hs-source-dirs:      examples
-  main-is:             test.hs
-  ghc-options:         -Wall -threaded
-  other-modules:       Hello,
-                       SlashRedirect,
-                       Combined
-  build-depends:       base >= 4.6 && <4.9,
-                       bytestring,
-                       text,
-                       lens,
-                       nero,
-                       tasty,
-                       tasty-hunit
