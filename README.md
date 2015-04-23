@@ -54,8 +54,7 @@ main :: IO ()
 main = serve 8080 app
 ```
 
-More examples in the [examples directory](
-https://github.com/plutonbrb/nero/tree/master/examples).
+You can check more examples at https://github.com/plutonbrb/nero-examples.
 
 [Haskell]: https://www.haskell.org/
 [lens]: https://lens.github.io/
