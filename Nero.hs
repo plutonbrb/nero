@@ -40,10 +40,6 @@ module Nero
   , exact
   -- * Results handling
   , Target(..)
-  -- * Testing
-  , dummyRequest
-  , dummyRequestForm
-  , dummyUrl
   -- * Nero Prelude
   , module Nero.Prelude
   ) where

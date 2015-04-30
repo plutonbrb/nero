@@ -1,9 +1,12 @@
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE LambdaCase #-}
 module Nero.Payload
   (
   -- * Payload
     Payload
   , payloadText
+  , defaultPayload
+  , defaultPayloadForm
   , Encoding
   , utf8Encoding
   , HasPayload(..)
@@ -14,8 +17,6 @@ module Nero.Payload
   , Form
   , _Form
   , Formed(..)
-  -- * Testing
-  , dummyPayloadForm
   ) where
 
 import Data.ByteString.Lazy (ByteString)
@@ -34,15 +35,22 @@ data Payload = PayloadText Encoding Body
 
 -- | Indicates a 'Text' encoding.
 data Encoding = Utf8
-              | Unknown String
+              | CustomEncoding String
                 deriving (Show,Eq)
 
-utf8Encoding :: Encoding
-utf8Encoding = Utf8
+defaultPayload :: Payload
+defaultPayload = PayloadBinary mempty
+
+-- | A 'Payload' with an empty 'Form'.
+defaultPayloadForm :: Payload
+defaultPayloadForm = PayloadForm mempty
 
 -- Creates a '/text/plain/' 'Payload' with the given 'Encoding' and a 'Body'
 payloadText :: Encoding -> Body -> Payload
 payloadText = PayloadText
+
+utf8Encoding :: Encoding
+utf8Encoding = Utf8
 
 -- | A 'Lens'' for types with a 'Payload'.
 class HasPayload a where
@@ -86,9 +94,3 @@ instance Formed Payload where
 
 instance Param Payload where
     param k = form . ix k . traverse
-
--- * Testing
-
--- | A 'Payload' with an empty 'Form' useful for testing.
-dummyPayloadForm :: Payload
-dummyPayloadForm = PayloadForm mempty

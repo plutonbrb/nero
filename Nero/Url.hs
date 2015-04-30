@@ -1,10 +1,10 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE DeriveGeneric #-}
 module Nero.Url
   (
   -- * URL
     Url(..)
+  , defaultUrl
   , Scheme(..)
   , Host
   , Path
@@ -20,7 +20,6 @@ module Nero.Url
   ) where
 
 import Prelude hiding (null)
-import GHC.Generics (Generic)
 import Data.ByteString.Lazy (ByteString)
 import Data.Text.Lazy (Text)
 import Data.Text.Lazy.Lens (utf8)
@@ -32,24 +31,13 @@ import Nero.Binary
 -- * URL
 
 -- | Composite type of a 'Scheme', 'Host', 'Path', 'Query'.
-data Url = Url Scheme Host Path Query deriving (Show,Eq,Generic)
+data Url = Url Scheme Host Path Query deriving (Show,Eq)
 
-instance Monoid Url where
-    mempty = Url mempty mempty mempty mempty
-    mappend (Url s1 h1 p1 q1) (Url s2 h2 p2 q2) =
-        Url (s1 <> s2)
-            (if h2 == mempty then h1 else h2)
-            (p1 <> p2)
-            (q1 <> q2)
+defaultUrl :: Url
+defaultUrl = Url Http mempty mempty mempty
 
 -- | The scheme given in the 'Url', i.e. @http@ or @https@.
-data Scheme = Http | Https deriving (Show,Eq,Generic)
-
-instance Monoid Scheme where
-    mempty  = Http
-    mappend _ Https = Https
-    mappend Https _ = Https
-    mappend _     _ = Http
+data Scheme = Http | Https deriving (Show,Eq)
 
 instance Renderable Scheme where
     render Http  = "http"

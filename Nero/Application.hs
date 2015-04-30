@@ -63,10 +63,10 @@ instance Server IO where
 --   'Request' passing through a 'Prism'' 'Request' 'Request'.
 --
 -- >>> let app = fmap (ok . ("Hello " <>)) . preview (_GET . path . prefixed "/hello/")
--- >>> app (dummyRequest & path .~ "/front")
+-- >>> app (defaultRequest & path .~ "/front")
 -- Nothing
 -- >>> let app' = reroute (prefixed "/front") app
--- >>> app' (dummyRequest & path .~ "/front/hello/there") <&> body
+-- >>> app' (defaultRequest & path .~ "/front/hello/there") <&> body
 -- Just "Hello there"
 reroute :: Alternative c
         => Prism' Request Request
@@ -77,7 +77,7 @@ reroute p app = maybe empty app . preview p
 -- | Take the first 'Application' that successfully responds after rerouting.
 --
 -- >>> let mkApp str = fmap (ok . ((str <> " ") <>)) . preview (_GET . path . prefixed ("/" <> str <> "/"))
--- >>> let req = dummyRequest & path .~ "/front/hello/there"
+-- >>> let req = defaultRequest & path .~ "/front/hello/there"
 -- >>> let app = nest (prefixed "/front") [mkApp "bye", mkApp "hello"]
 -- >>> app req <&> body
 -- Just "hello there"
@@ -93,7 +93,7 @@ nest p xs request =
 -- | Redirect with slash appended URL if only a trailing slash is needed for
 --   successful matching, otherwise it responds normally.
 --
--- >>> let mkRequest p = dummyRequest & host .~ "example.com" & path .~ p
+-- >>> let mkRequest p = defaultRequest & host .~ "example.com" & path .~ p
 -- >>> let respond name = ok $ "<h1>Hello " <> name <> "</h1>"
 -- >>> let app = slashRedirect (prefixed "/hello/" . suffixed "/") respond :: Request -> Maybe Response
 --

@@ -4,6 +4,8 @@ module Nero.Request
   (
   -- * Request
     Request
+  , defaultRequest
+  , defaultRequestForm
   , get
   , post
   , _GET
@@ -15,9 +17,6 @@ module Nero.Request
   , GET
   -- ** POST
   , POST
-  -- * Testing
-  , dummyRequest
-  , dummyRequestForm
   ) where
 
 import Data.ByteString (ByteString)
@@ -35,13 +34,23 @@ import Nero.Match
 -- * Request
 
 -- | An HTTP Request.
-data Request = RequestGET  GET
-             | RequestPOST POST
+data Request = RequestGET    GET
+             | RequestPOST   POST
+             | RequestCustom CustomRequest
                deriving (Show,Eq)
 
+-- | An empty GET request.
+defaultRequest :: Request
+defaultRequest = RequestGET defaultGET
+
+-- | An empty POST request with an empty /form encoded body/.
+defaultRequestForm :: Request
+defaultRequestForm = RequestPOST $ POST defaultRequestCommon defaultPayloadForm
+
 instance HasUrl Request where
-    url f (RequestGET (GET u)) = RequestGET . GET <$> f u
-    url f (RequestPOST (POST u pl)) = RequestPOST . flip POST pl <$> f u
+    url f (RequestGET g) = (\u -> RequestGET $ g & url .~ u) <$> f (g ^. url)
+    url f (RequestPOST p) = (\u -> RequestPOST $ p & url .~ u) <$> f (p ^. url)
+    url f (RequestCustom c) = (\u -> RequestCustom $ c & url .~ u) <$> f (c ^. url)
 
 instance HasHost Request where
     host = url . host
@@ -71,11 +80,11 @@ instance Prefixed Request where
 
 -- | Smart constructor for 'GET' 'Request's.
 get :: Url -> Request
-get u = _GET # GET u
+get u = _GET # defaultGET & url .~ u
 
 -- | Smart constructor for 'POST' 'Request's.
 post :: Url -> Payload -> Request
-post u p = _POST # POST u p
+post u p = _POST # (defaultPOST & url .~ u & payload .~ p)
 
 -- | 'Prism'' for 'GET' 'Request's.
 _GET :: Prism' Request GET
@@ -93,13 +102,16 @@ _POST = prism' RequestPOST $ \case
 method :: Request -> ByteString
 method RequestGET  {} = "GET"
 method RequestPOST {} = "POST"
+method (RequestCustom (CustomRequest m _ _)) = m
 
 -- | 'Traversal'' to obtain a 'Payload' from a 'Request'. This is not a 'Lens''
 --   because some 'Request's, such has 'GET', are not allowed to have a 'Payload'.
 payloaded :: Traversal' Request Payload
 payloaded _ rg@(RequestGET {}) = pure rg
-payloaded f (RequestPOST (POST u pl)) =
-    RequestPOST <$> (POST <$> pure u <*> f pl)
+payloaded f (RequestPOST (POST rc pl)) =
+    RequestPOST <$> (POST <$> pure rc <*> f pl)
+payloaded f (RequestCustom (CustomRequest m rc pl)) =
+    RequestCustom <$> (CustomRequest <$> pure m <*> pure rc <*> f pl)
 
 -- | This 'Traversal' lets you traverse every HTTP parameter regardless of
 --   whether it's present in the /query string/ or in the /form encoded body/
@@ -109,21 +121,29 @@ payloaded f (RequestPOST (POST u pl)) =
 --
 --   You might want to use 'param' for traversing a specific parameter.
 --
--- >>> let request = dummyRequestForm & query . at "name" ?~ ["hello", "out"] & form  . at "name" ?~ ["there"]
+-- >>> let request = defaultRequestForm & query . at "name" ?~ ["hello", "out"] & form  . at "name" ?~ ["there"]
 -- >>> foldOf params request ^? ix "name"
 -- Just ["hello","out","there"]
 params :: Traversal' Request MultiMap
 params f request@(RequestGET {}) = query f request
-params f (RequestPOST (POST u pl)) =
-    RequestPOST <$> (POST <$> query f u <*> form f pl)
+params f (RequestPOST (POST rc pl)) =
+    RequestPOST <$> (POST <$> query f rc <*> form f pl)
+params f (RequestCustom (CustomRequest m rc pl)) =
+    RequestCustom <$> (CustomRequest <$> pure m <*> query f rc <*> form f pl)
 
 -- ** GET
 
 -- | A @GET@ 'Request'.
-data GET = GET Url deriving (Show,Eq)
+data GET = GET RequestCommon deriving (Show,Eq)
+
+defaultGET :: GET
+defaultGET = GET defaultRequestCommon
+
+instance HasRequestCommon GET where
+    requestCommon f (GET rc) = GET <$> f rc
 
 instance HasUrl GET where
-    url f (GET u) = GET <$> f u
+    url = requestCommon . url
 
 instance HasHost GET where
     host = url . host
@@ -137,10 +157,16 @@ instance HasQuery GET where
 -- ** POST
 
 -- | A @POST@ 'Request'.
-data POST = POST Url Payload deriving (Show,Eq)
+data POST = POST RequestCommon Payload deriving (Show,Eq)
+
+defaultPOST :: POST
+defaultPOST = POST defaultRequestCommon defaultPayload
+
+instance HasRequestCommon POST where
+    requestCommon f (POST rc p) = flip POST p <$> f rc
 
 instance HasUrl POST where
-    url f (POST u p) = flip POST p <$> f u
+    url = requestCommon . url
 
 instance HasPayload POST where
     payload f (POST u p) = POST u <$> f p
@@ -154,13 +180,56 @@ instance HasPath POST where
 instance HasQuery POST where
     query = url . query
 
--- * Testing
+-- ** Custom method Request
 
--- | An empty GET request useful for testing.
-dummyRequest :: Request
-dummyRequest = RequestGET $ GET dummyUrl
+data CustomRequest = CustomRequest CustomMethod RequestCommon Payload
+                     deriving (Show,Eq)
 
--- | An empty POST request with an empty /form encoded body/ useful for
---   testing.
-dummyRequestForm :: Request
-dummyRequestForm = RequestPOST $ POST dummyUrl dummyPayloadForm
+instance HasRequestCommon CustomRequest where
+    requestCommon f (CustomRequest cm rc pl) = (\rc' -> CustomRequest cm rc' pl) <$> f rc
+
+instance HasUrl CustomRequest where
+    url = requestCommon . url
+
+instance HasQuery CustomRequest where
+    query = requestCommon . query
+
+type CustomMethod = ByteString
+
+-- * Version
+
+data HttpVersion = HttpVersion
+  { _httpMajor :: Int
+  , _httpMinor :: Int
+  } deriving (Show,Eq,Ord)
+
+--- XXX: Check Monoid laws!
+instance Monoid HttpVersion where
+    mempty = HttpVersion 1 1
+    mappend _ v2 = v2
+
+-- * Internal
+
+class HasRequestCommon a where
+    requestCommon :: Lens' a RequestCommon
+
+-- | Aggregate of types present in every method.
+data RequestCommon = RequestCommon
+    { _version :: HttpVersion
+    , _url     :: Url
+    , _headers :: [Header]
+    } deriving (Show,Eq)
+
+type Header = (HeaderName, ByteString)
+
+type HeaderName = ByteString
+
+defaultRequestCommon :: RequestCommon
+defaultRequestCommon = RequestCommon (HttpVersion 1 1) defaultUrl []
+
+instance HasUrl RequestCommon where
+    url f rc = (\u -> rc { _url = u }) <$> f (_url rc)
+
+instance HasQuery RequestCommon where
+    query = url . query
+
