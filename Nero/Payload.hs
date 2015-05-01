@@ -30,7 +30,7 @@ import Nero.Binary
 -- | Contains the 'Body' and any metadata associated with it.
 data Payload = PayloadText Encoding Body
              | PayloadBinary Body
-             | PayloadForm Form
+             | PayloadForm Body
                deriving (Show,Eq)
 
 -- | Indicates a 'Text' encoding.
@@ -62,16 +62,14 @@ class HasPayload a where
 --   'Response'.
 type Body = ByteString
 
--- Can't be made a Lens easily because of putative parsing failures for 'Form'
--- TODO: Is it worth making this a traversal?
 -- | Get the 'Body' for types with one.
 class HasBody a where
-    body :: a -> Body
+    body :: Lens' a Body
 
 instance HasBody Payload where
-    body (PayloadText _ b) = b
-    body (PayloadBinary b) = b
-    body (PayloadForm fo)  = render fo
+    body f (PayloadText e b) = PayloadText e <$> f b
+    body f (PayloadBinary b) = PayloadBinary <$> f b
+    body f (PayloadForm b)   = PayloadForm   <$> f b
 
 -- * Form
 
@@ -81,8 +79,8 @@ type Form = MultiMap
 -- | A 'Prism'' to obtain a 'Form' from a 'Payload' and make 'Payload' from
 --   a 'Form'.
 _Form :: Prism' Payload Form
-_Form = prism' PayloadForm $ \case
-    PayloadForm f -> Just f
+_Form = prism' (PayloadForm . review binary) $ \case
+    PayloadForm b -> b ^? binary
     _             -> Nothing
 
 -- | A 'Traversal'' to access a potential 'Form'.

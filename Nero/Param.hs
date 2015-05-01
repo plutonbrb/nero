@@ -17,7 +17,10 @@ module Nero.Param
   ) where
 
 import Prelude hiding (null)
+import Data.Bifunctor (second)
+import qualified Data.Text.Lazy as T
 import Data.Text.Lazy (Text, intercalate)
+import Data.Text.Lazy.Encoding (decodeUtf8)
 import Data.Map (Map)
 import qualified Data.Map as Map
 import Data.Text.Lazy.Lens (utf8)
@@ -68,6 +71,18 @@ instance Renderable MultiMap where
            -- GHC==7.6.3
            . fold . Map.mapWithKey (map . mappend . flip mappend "=")
            . unMultiMap
+
+instance Parseable MultiMap where
+    -- TODO: Handle parsing failutres
+    parse = Just
+          . MultiMap
+          . Map.fromListWith (++)
+          . map (second (pure . safeTail) . T.breakOn "=")
+          . T.splitOn "&"
+          . decodeUtf8
+      where
+        safeTail "" = ""
+        safeTail t  = T.tail t
 
 -- | Like 'Map.fromList' from "Data.Map" but 'mappend'ing the values.
 fromList :: [(Text, [Text])] -> MultiMap

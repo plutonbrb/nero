@@ -69,10 +69,6 @@ instance Param Request where
 instance Formed Request where
     form = payloaded . form
 
-instance HasBody Request where
-    -- TODO: `body . view payload` when `Payload` becomes `Monoid`.
-    body = maybe mempty body . preview payloaded
-
 instance Prefixed Request where
     prefixed pat = prism'
         (path %~ (pat <>))

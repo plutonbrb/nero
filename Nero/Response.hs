@@ -36,11 +36,6 @@ instance Location Response where
     location f (MovedPermanently u) = MovedPermanently <$> f u
     location _ response = pure response
 
-instance HasBody Response where
-    body (Ok pl) = body pl
-    body (MovedPermanently _) = mempty
-    body (NotFound pl) = body pl
-
 -- * Construction
 
 -- | Creates an /200 OK/ response from the given text. It automatically

@@ -66,7 +66,7 @@ instance Server IO where
 -- >>> app (defaultRequest & path .~ "/front")
 -- Nothing
 -- >>> let app' = reroute (prefixed "/front") app
--- >>> app' (defaultRequest & path .~ "/front/hello/there") <&> body
+-- >>> app' (defaultRequest & path .~ "/front/hello/there") ^? _Just . _Ok . body
 -- Just "Hello there"
 reroute :: Alternative c
         => Prism' Request Request
@@ -79,7 +79,7 @@ reroute p app = maybe empty app . preview p
 -- >>> let mkApp str = fmap (ok . ((str <> " ") <>)) . preview (_GET . path . prefixed ("/" <> str <> "/"))
 -- >>> let req = defaultRequest & path .~ "/front/hello/there"
 -- >>> let app = nest (prefixed "/front") [mkApp "bye", mkApp "hello"]
--- >>> app req <&> body
+-- >>> app req ^? _Just . _Ok . body
 -- Just "hello there"
 nest :: (Foldable t, Alternative c)
      => Prism' Request Request
@@ -104,7 +104,7 @@ nest p xs request =
 --
 -- >>> app (mkRequest "/hello/there/") <&> status
 -- Just "200 OK"
--- >>> app (mkRequest "/hello/there/") <&> body
+-- >>> app (mkRequest "/hello/there/") ^? _Just . _Ok . body
 -- Just "<h1>Hello there</h1>"
 --
 -- >>> app $ mkRequest "/bye/"
