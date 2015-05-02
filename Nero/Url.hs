@@ -15,8 +15,6 @@ module Nero.Url
   , HasPath(..)
   , HasQuery(..)
   , Param(..)
-  -- * Testing
-  , dummyUrl
   ) where
 
 import Prelude hiding (null)
@@ -94,9 +92,3 @@ instance Renderable Url where
         if not (null q)
            then "?" <> render q
            else mempty)
-
--- * Testing
-
--- | Empty 'Url' useful for testing.
-dummyUrl :: Url
-dummyUrl = Url Http mempty mempty mempty
