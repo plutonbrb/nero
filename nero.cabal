@@ -28,8 +28,9 @@ library
   exposed-modules:     Nero,
                        Nero.Application,
                        Nero.Binary,
+                       Nero.Common,
                        Nero.Match,
-                       Nero.Param
+                       Nero.Param,
                        Nero.Payload,
                        Nero.Prelude,
                        Nero.Response,

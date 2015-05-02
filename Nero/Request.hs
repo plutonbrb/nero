@@ -22,6 +22,7 @@ module Nero.Request
 import Data.ByteString (ByteString)
 import qualified Data.Text.Lazy as T
 
+import Nero.Common
 import Nero.Prelude
 import Nero.Param
 import Nero.Payload
@@ -192,18 +193,6 @@ instance HasQuery CustomRequest where
 
 type CustomMethod = ByteString
 
--- * Version
-
-data HttpVersion = HttpVersion
-  { _httpMajor :: Int
-  , _httpMinor :: Int
-  } deriving (Show,Eq,Ord)
-
---- XXX: Check Monoid laws!
-instance Monoid HttpVersion where
-    mempty = HttpVersion 1 1
-    mappend _ v2 = v2
-
 -- * Internal
 
 class HasRequestCommon a where
@@ -216,12 +205,8 @@ data RequestCommon = RequestCommon
     , _headers :: [Header]
     } deriving (Show,Eq)
 
-type Header = (HeaderName, ByteString)
-
-type HeaderName = ByteString
-
 defaultRequestCommon :: RequestCommon
-defaultRequestCommon = RequestCommon (HttpVersion 1 1) defaultUrl []
+defaultRequestCommon = RequestCommon http11 defaultUrl []
 
 instance HasUrl RequestCommon where
     url f rc = (\u -> rc { _url = u }) <$> f (_url rc)
