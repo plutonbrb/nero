@@ -1,5 +1,6 @@
 {-# LANGUAGE CPP #-}
-#if MIN_VERSION_base(4,8,0)
+
+#if !MIN_VERSION_base(4,8,0)
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 #endif
 
