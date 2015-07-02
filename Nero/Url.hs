@@ -1,5 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE DeriveGeneric #-}
 module Nero.Url
   (
   -- * URL
@@ -18,6 +19,7 @@ module Nero.Url
   ) where
 
 import Prelude hiding (null)
+import GHC.Generics (Generic)
 import Data.ByteString.Lazy (ByteString)
 import Data.Text.Lazy (Text)
 import Data.Text.Lazy.Lens (utf8)
@@ -29,13 +31,31 @@ import Nero.Binary
 -- * URL
 
 -- | Composite type of a 'Scheme', 'Host', 'Path', 'Query'.
-data Url = Url Scheme Host Path Query deriving (Show,Eq)
+data Url = Url Scheme Host Path Query deriving (Show,Eq,Generic)
 
 defaultUrl :: Url
 defaultUrl = Url Http mempty mempty mempty
 
+instance HasHost Url where
+    host f (Url s h p q) = (\h' -> Url s h' p q) <$> f h
+
+instance HasQuery Url where
+    query f (Url s h p q) = Url s h p <$> f q
+
+instance HasPath Url where
+    path f (Url s h p q) = (\p' -> Url s h p' q) <$> f p
+
+instance Param Url where
+    param k = query . param k
+
+instance Renderable Url where
+    render (Url s h p q) = render s <> "://" <> h <> utf8 # p <> (
+        if not (null q)
+           then "?" <> render q
+           else mempty)
+
 -- | The scheme given in the 'Url', i.e. @http@ or @https@.
-data Scheme = Http | Https deriving (Show,Eq)
+data Scheme = Http | Https deriving (Show,Eq,Generic)
 
 instance Renderable Scheme where
     render Http  = "http"
@@ -67,28 +87,10 @@ class Location a where
 class HasHost a where
     host :: Lens' a Host
 
-instance HasHost Url where
-    host f (Url s h p q) = (\h' -> Url s h' p q) <$> f h
-
 -- | 'Lens'' for types with a 'Path'.
 class HasPath a where
     path :: Lens' a Path
 
-instance HasPath Url where
-    path f (Url s h p q) = (\p' -> Url s h p' q) <$> f p
-
 -- | 'Lens'' for types with a 'Query'.
 class HasQuery a where
     query :: Lens' a Query
-
-instance HasQuery Url where
-    query f (Url s h p q) = Url s h p <$> f q
-
-instance Param Url where
-    param k = query . param k
-
-instance Renderable Url where
-    render (Url s h p q) = render s <> "://" <> h <> utf8 # p <> (
-        if not (null q)
-           then "?" <> render q
-           else mempty)
