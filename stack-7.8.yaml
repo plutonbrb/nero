@@ -1,0 +1,9 @@
+flags: {}
+packages:
+- '.'
+extra-deps:
+- smallcheck-lens-0.1
+- smallcheck-laws-0.1
+- smallcheck-series-0.4
+- doctest-0.10.1
+resolver: lts-2.21
