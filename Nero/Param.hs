@@ -30,6 +30,7 @@ import Data.Text.Lazy.Lens (utf8)
 
 import Nero.Prelude
 import Nero.Binary
+import Nero.Compat
 
 -- * HTTP Parameters
 
@@ -70,8 +71,7 @@ instance Param MultiMap where
 instance Renderable MultiMap where
     render = review utf8
            . intercalate "&"
-           -- XXX: Implement Map.foldMapWithKey in Nero.Compat, not supported in `containers-0.5.0.0`
-           . Map.foldMapWithKey (\k -> map $ \v -> if T.null v
+           . foldMapWithKey (\k -> map $ \v -> if T.null v
                                                    then k
                                                    else k <> "=" <> v)
            . unMultiMap
