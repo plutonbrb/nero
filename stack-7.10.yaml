@@ -50,4 +50,8 @@ extra-deps:
 - dlist-0.7.1.1
 - ghc-paths-0.1.0.9
 - syb-0.5.1
+- smallcheck-lens-0.1
+- smallcheck-laws-0.1
+- smallcheck-series-0.4
+- tasty-hunit-0.9.2
 resolver: ghc-7.10
