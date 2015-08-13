@@ -7,14 +7,18 @@
 module Test.Nero.Url (tests) where
 
 import Data.Text.Lazy (Text)
-import Control.Lens (Lens', Traversal')
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.SmallCheck.Lens (testLens, testTraversal)
 import Test.SmallCheck.Series (Serial, CoSerial)
 import Test.SmallCheck.Series.Instances ()
+import Test.Tasty.HUnit
+
+import Nero.Prelude
+import Nero.Binary (render)
+-- TODO: MultiMap should be in its own module
+import qualified Nero.Param as MultiMap
 
 import Nero.Url
-import Nero.Param
 
 instance Monad m => Serial m Scheme
 
@@ -31,4 +35,19 @@ tests = testGroup "Url"
   , testLens (path  :: Lens' Url Path)
   , testTraversal (param "aaa" :: Traversal' Url Text)
   , testTraversal (param "bbb" :: Traversal' Url Text)
+  , testTraversal (param "" :: Traversal' Url Text)
+  , testRenderUrl
+  ]
+
+testRenderUrl :: TestTree
+testRenderUrl = testGroup "Render"
+  [ testCase "empty" $ "http://" @=? render defaultUrl
+  , testCase "Example.com" $
+      "http://example.com" @=? render (defaultUrl & host .~ "example.com")
+  , testCase "single query no value" $ "http://example.com?query" @=?
+      render (defaultUrl & host  .~ "example.com" 
+                         & query . at "query" ?~ pure mempty)
+  , testCase "One query and value together" $ "http://example.com?query=value" @=?
+      render (defaultUrl & host .~ "example.com"
+                         & query . at "query" ?~ pure "value")
   ]

@@ -14,6 +14,7 @@ module Nero.Param
   -- * MultiMap
   , MultiMap
   , fromList
+  , singleton
   , null
   ) where
 
@@ -69,9 +70,10 @@ instance Param MultiMap where
 instance Renderable MultiMap where
     render = review utf8
            . intercalate "&"
-           -- Map.foldMapWithKey not supported in `containers-0.5.0.0` coming with
-           -- GHC==7.6.3
-           . fold . Map.mapWithKey (map . mappend . flip mappend "=")
+           -- XXX: Implement Map.foldMapWithKey in Nero.Compat, not supported in `containers-0.5.0.0`
+           . Map.foldMapWithKey (\k -> map $ \v -> if T.null v
+                                                   then k
+                                                   else k <> "=" <> v)
            . unMultiMap
 
 instance Parseable MultiMap where
@@ -85,6 +87,10 @@ instance Parseable MultiMap where
       where
         safeTail "" = ""
         safeTail t  = T.tail t
+
+-- | Like 'Map.singleton' from "Data.Map".
+singleton :: Text -> [Text] -> MultiMap
+singleton k = MultiMap . Map.singleton k
 
 -- | Like 'Map.fromList' from "Data.Map" but 'mappend'ing the values.
 fromList :: [(Text, [Text])] -> MultiMap
