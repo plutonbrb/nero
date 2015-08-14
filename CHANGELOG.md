@@ -6,7 +6,15 @@ Versioning](http://semver.org/).
 
 ## [Unreleased][unreleased]
 ### Added
+- `stack` support.
 - `nest` and `reroute`.
+- Basic tests.
+
+### Changed
+- `HasBody` is now a `Lens` instead of a `Getter`.
+
+### Removed
+- Examples moved to its own package.
 
 ## [0.3.1][0.3.1] - 2015-4-16
 ### Fixed
