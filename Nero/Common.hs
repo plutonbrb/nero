@@ -1,3 +1,7 @@
+{-|
+These are the shared data types between "Nero.Request" and "Nero.Response"
+modules.
+-}
 module Nero.Common
   ( HttpVersion
   , http11

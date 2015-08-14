@@ -77,7 +77,8 @@ instance Renderable MultiMap where
            . unMultiMap
 
 instance Parseable MultiMap where
-    -- TODO: Handle parsing failutres
+    -- TODO: Handle parsing failures
+    -- TODO: Test it
     parse = Just
           . MultiMap
           . Map.fromListWith (++)

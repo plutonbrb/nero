@@ -16,7 +16,6 @@ import Test.Tasty.HUnit
 import Nero.Prelude
 import Nero.Binary (render)
 -- TODO: MultiMap should be in its own module
-import qualified Nero.Param as MultiMap
 
 import Nero.Url
 
