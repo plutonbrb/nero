@@ -1,5 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE DeriveGeneric #-}
 module Nero.Payload
   (
   -- * Payload
@@ -19,6 +20,7 @@ module Nero.Payload
   , Formed(..)
   ) where
 
+import GHC.Generics (Generic)
 import Data.ByteString.Lazy (ByteString)
 
 import Nero.Prelude
@@ -31,12 +33,12 @@ import Nero.Binary
 data Payload = PayloadText Encoding Body
              | PayloadBinary Body
              | PayloadForm Body
-               deriving (Show,Eq)
+               deriving (Show,Eq,Generic)
 
 -- | Indicates a 'Text' encoding.
 data Encoding = Utf8
               | CustomEncoding String
-                deriving (Show,Eq)
+                deriving (Show,Eq,Generic)
 
 defaultPayload :: Payload
 defaultPayload = PayloadBinary mempty
