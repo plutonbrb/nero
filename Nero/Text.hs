@@ -5,8 +5,12 @@ module Nero.Text
     breakOn
   ) where
 
+-- Avoid base > 4.8 warnings
+import Prelude hiding (mempty)
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
+
+import Nero.Prelude
 
 -- * Internal
 

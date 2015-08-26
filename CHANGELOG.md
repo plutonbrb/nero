@@ -12,6 +12,8 @@ Versioning](http://semver.org/).
 
 ### Changed
 - `HasBody` is now a `Lens` instead of a `Getter`.
+- Restructured how multimaps are stored internally. This affects the way to
+  create them, parsing and rendering,  is slightly  different.
 
 ### Removed
 - Examples moved to its own package.
