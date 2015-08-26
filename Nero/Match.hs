@@ -25,6 +25,7 @@ import qualified Data.Text.Lazy as T
 import Data.Bitraversable (bitraverse)
 
 import Nero.Prelude
+import Nero.Text
 
 -- $setup
 -- >>> :set -XOverloadedStrings
@@ -203,16 +204,3 @@ instance (Target a, Target b) => Target (a,b) where
                                       (preview target)
                                       (pure v1, pure v2)
                 _ -> Nothing)
-
--- * Internal
-
--- | Like 'T.breakOn' but discards the needle and wraps `Maybe` when there is no
---   needle. When the needle is empty it breaks until the end.
-breakOn :: Text -> Text -> Maybe (Text,Text)
-breakOn pat src
-    | T.null pat = Just (src, mempty)
-    | otherwise  =
-        let (x,m) = T.breakOn pat src
-         in case T.stripPrefix pat m of
-                 Just y  -> Just (x,y)
-                 Nothing -> Nothing
