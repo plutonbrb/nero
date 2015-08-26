@@ -65,7 +65,7 @@ instance HasQuery Request where
 -- | It traverses the values with the same key both in the /query string/
 --   and the /form encoded body/ of a @POST@ 'Request'.
 instance Param Request where
-    param k = params . ix k . traverse
+    param k = params . ix k . traverse . _Just
 
 instance Formed Request where
     form = payloaded . form

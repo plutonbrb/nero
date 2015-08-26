@@ -12,12 +12,19 @@ different versions of `base` and re-exports the following:
 
 - '>=>', '<=<' from "Control.Monad".
 
-- 'Monoid', '<>', 'mappend', 'mempty' from "Data.Monoid".
+- 'Monoid', , 'mappend', 'mempty' from "Data.Monoid".
+-
+- 'Semigroup', '<>' from "Data.Semigroup".
+-
+- 'NonEmpty', ':|' from "Data.List.NonEmpty".
+
 -}
 module Nero.Prelude (module X) where
 
 import Control.Applicative as X (Applicative, Alternative, (<$>), (<*>), (<|>), pure, empty)
 import Data.Foldable as X (Foldable, fold, foldMap)
 import Control.Monad as X ((>=>), (<=<))
-import Data.Monoid as X (Monoid, (<>), mappend, mempty)
+import Data.Monoid as X (Monoid, mappend, mempty)
+import Data.Semigroup as X (Semigroup((<>)))
+import Data.List.NonEmpty as X (NonEmpty((:|)))
 import Control.Lens as X

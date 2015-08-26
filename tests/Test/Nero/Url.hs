@@ -15,11 +15,14 @@ import Test.Tasty.HUnit
 
 import Nero.Prelude
 import Nero.Binary (render)
--- TODO: MultiMap should be in its own module
 
 import Nero.Url
 
 instance Monad m => Serial m Scheme
+
+instance (Serial m a) => Serial m (NonEmpty a)
+
+instance (CoSerial m a) => CoSerial m (NonEmpty a)
 
 instance Monad m => Serial m Query
 
@@ -45,12 +48,12 @@ testRenderUrl = testGroup "Render"
       "http://example.com" @=? render (defaultUrl & host .~ "example.com")
   , testCase "single key" $ "http://example.com?query" @=?
       render (defaultUrl & host  .~ "example.com" 
-                         & query . at "query" ?~ pure mempty)
+                         & query . at "query" ?~ pure mempty) -- There is NonEmpty Alternative instance
   , testCase "One key/value" $ "http://example.com?query=value" @=?
       render (defaultUrl & host .~ "example.com"
-                         & query . at "query" ?~ pure "value")
+                         & query . at "query" ?~ pure (Just "value"))
   , testCase "Multiple key/value pairs" $ "http://example.com?key1=value1&key2=value2" @=?
       render (defaultUrl & host .~ "example.com"
-                         & query . at "key1" ?~ pure "value1"
-                         & query . at "key2" ?~ pure "value2")
+                         & query . at "key1" ?~ pure (Just "value1")
+                         & query . at "key2" ?~ pure (Just "value2"))
   ]

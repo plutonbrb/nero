@@ -24,4 +24,4 @@ instance Monad m => Serial m Encoding
 tests :: TestTree
 tests = testGroup "Payload"
   [ testLens (body :: Lens' Payload Body)
-  ] 
+  ]
