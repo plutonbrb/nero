@@ -118,9 +118,9 @@ payloaded f (RequestCustom (CustomRequest m rc pl)) =
 --
 --   You might want to use 'param' for traversing a specific parameter.
 --
--- >>> let request = defaultRequestForm & query . at "name" ?~ fmap Just ("hello" :| ["out"]) & form  . at "name" ?~ pure Nothing
--- >>> foldOf params request ^? ix "name"
--- Just (Just "hello" :| [Just "out",Nothing])
+-- >>> let request = defaultRequestForm & query . at "name" ?~ fmap Just ("hello" :| ["out"]) & form  . at "name" ?~ pure (Just "there")
+-- >>> request ^.. param "name"
+-- ["hello","out","there"]
 params :: Traversal' Request MultiMap
 params f request@(RequestGET {}) = query f request
 params f (RequestPOST (POST rc pl)) =
