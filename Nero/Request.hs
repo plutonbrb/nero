@@ -23,11 +23,11 @@ import Data.ByteString (ByteString)
 import qualified Data.Text.Lazy as T
 
 import Nero.Common
+import Nero.Match
 import Nero.Prelude
 import Nero.Param
 import Nero.Payload
 import Nero.Url
-import Nero.Match
 
 -- $setup
 -- >>> :set -XOverloadedStrings

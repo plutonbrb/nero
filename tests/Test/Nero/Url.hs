@@ -1,7 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE RankNTypes #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module Test.Nero.Url (tests) where
@@ -11,12 +10,11 @@ import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.SmallCheck.Lens (testLens, testTraversal)
 import Test.SmallCheck.Series (Serial, CoSerial)
 import Test.SmallCheck.Series.Instances ()
-import Test.Tasty.HUnit
+import Test.Tasty.HUnit (testCase, (@=?))
 
 import Nero.Prelude
+import Nero.Binary
 import Nero.Param
-import Nero.Binary (render)
-
 import Nero.Url
 
 instance (Serial m a) => Serial m (NonEmpty a)

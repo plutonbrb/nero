@@ -1,4 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE DeriveGeneric #-}
 module Nero.Payload
@@ -23,9 +22,9 @@ module Nero.Payload
 import GHC.Generics (Generic)
 import Data.ByteString.Lazy (ByteString)
 
+import Nero.Binary
 import Nero.Prelude
 import Nero.Param
-import Nero.Binary
 
 -- * Payload
 

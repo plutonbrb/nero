@@ -22,15 +22,15 @@ module Nero.Param
   ) where
 
 import Prelude hiding (null)
-import Data.String
-import GHC.Generics (Generic)
-import Data.Functor.Compose
 import Data.Bifunctor (second)
+import Data.Functor.Compose (Compose(Compose,getCompose))
+import Data.String (IsString(fromString))
+import GHC.Generics (Generic)
 import qualified Data.List.NonEmpty as NonEmpty
-import qualified Data.Text.Lazy as T
-import Data.Text.Lazy (Text, intercalate)
 import Data.Map (Map)
 import qualified Data.Map as Map
+import Data.Text.Lazy (Text, intercalate)
+import qualified Data.Text.Lazy as T
 import Data.Text.Lazy.Lens (utf8)
 
 import Nero.Prelude
