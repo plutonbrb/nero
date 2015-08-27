@@ -36,7 +36,7 @@ changes in the `API` until the `1.0.0` release.
   being purely functional under the hood. Veteran *Haskellers* can take
   advantage of the powerful lens combinators.
 
-[![Hackage Version](https://img.shields.io/hackage/v/nero.svg)](https://hackage.haskell.org/package/nero) [![Build Status](https://img.shields.io/travis/plutonbrb/nero.svg)](https://travis-ci.org/plutonbrb/nero)[![Coverage Status](https://coveralls.io/repos/plutonbrb/nero/badge.svg?branch=master&service=github)](https://coveralls.io/github/plutonbrb/nero?branch=master)
+[![Hackage Version](https://img.shields.io/hackage/v/nero.svg)](https://hackage.haskell.org/package/nero) [![Build Status](https://img.shields.io/travis/plutonbrb/nero.svg)](https://travis-ci.org/plutonbrb/nero) [![Coverage Status](https://coveralls.io/repos/plutonbrb/nero/badge.svg?branch=master&service=github)](https://coveralls.io/github/plutonbrb/nero?branch=master)
 
 ## Example
 
