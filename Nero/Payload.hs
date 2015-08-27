@@ -93,4 +93,4 @@ instance Formed Payload where
     form = _Form
 
 instance Param Payload where
-    param k = form . ix k . traverse . _Just
+    param k = form . ix k . traverse

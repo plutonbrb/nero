@@ -1,6 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE LambdaCase #-}
 {-|
@@ -12,6 +13,7 @@ module Nero.Param
   (
   -- * HTTP Parameters
     Param(..)
+  , Values
   -- * MultiMap
   , MultiMap
   , fromList
@@ -21,6 +23,7 @@ module Nero.Param
 
 import Prelude hiding (null)
 import GHC.Generics (Generic)
+import Data.Functor.Compose
 import Data.Bifunctor (second)
 import qualified Data.List.NonEmpty as NonEmpty
 import qualified Data.Text.Lazy as T
@@ -44,22 +47,43 @@ class Param a where
 
 -- | A 'Map' with multiple values. Also known as a @MultiDict@ in other web
 --   frameworks.
-newtype MultiMap = MultiMap { unMultiMap :: Map Text (NonEmpty (Maybe Text)) }
-                   deriving (Eq,Show,Generic)
+newtype MultiMap = MultiMap { unMultiMap :: Map Text (Values Text) }
+                   deriving (Show,Eq,Generic)
+
+newtype Values a = Values { unValues :: NonEmpty (Maybe a) }
+                   deriving (Show,Eq,Generic,Functor)
+
+instance Semigroup (Values a) where
+    (Values ne1) <> (Values ne2) = Values $ ne1 <> ne2
+
+instance Monoid (Values a) where
+    mempty = Values $ Nothing :| []
+    mappend = (<>)
+
+instance Applicative Values where
+    pure = Values . pure . pure
+    (Values fs) <*> (Values xs) =
+        Values . getCompose $ Compose fs <*> Compose xs
+
+instance Foldable Values where
+    foldMap f (Values vs) = foldMap f (Compose vs)
+
+instance Traversable Values where
+    traverse f (Values vs) = Values . getCompose <$> traverse f (Compose vs)
 
 -- | The default monoid implementation of "Data.Map" is left biased, this
 --   implementation 'mappend's the values.
 instance Monoid MultiMap where
+    mempty = MultiMap mempty
     mappend (MultiMap m1) (MultiMap m2) =
         MultiMap $ Map.unionWith (<>) m1 m2
-    mempty = MultiMap mempty
 
 instance Wrapped MultiMap where
-    type Unwrapped MultiMap = Map Text (NonEmpty (Maybe Text))
+    type Unwrapped MultiMap = Map Text (Values Text)
     _Wrapped' = iso unMultiMap MultiMap
 
 type instance Index MultiMap = Text
-type instance IxValue MultiMap = NonEmpty (Maybe Text)
+type instance IxValue MultiMap = Values Text
 instance Ixed MultiMap where
     ix k = _Wrapped' . ix k
 
@@ -67,7 +91,7 @@ instance At MultiMap where
     at k = _Wrapped' . at k
 
 instance Param MultiMap where
-    param k = ix k . traverse . _Just
+    param k = ix k . traverse
 
 -- | Encode a 'MultiMap' with the typical query string format.
 instance Renderable MultiMap where
@@ -75,6 +99,7 @@ instance Renderable MultiMap where
            . intercalate "&"
            . foldMapWithKey (\k -> NonEmpty.toList
                                  . fmap (maybe k ((k <> "=") <>)))
+           . fmap unValues
            . unMultiMap
 
 -- TODO: Document this properly!
@@ -101,13 +126,13 @@ instance Parseable MultiMap where
 
 -- | Like 'Map.singleton' from "Data.Map".
 singleton :: Text -> MultiMap
-singleton k = MultiMap . Map.singleton k $ pure Nothing
+singleton k = MultiMap . Map.singleton k $ mempty
 
 -- | Like 'Map.fromList' from "Data.Map" but 'mappend'ing the values.
 --
 --   Use 'Nothing' for keys without values.
 fromList :: [(Text, Maybe Text)] -> MultiMap
-fromList = MultiMap . Map.fromListWith (<>) . fmap (second pure)
+fromList = MultiMap . Map.fromListWith (<>) . fmap (second $ maybe mempty pure)
 
 -- | Is the map empty?
 null :: MultiMap -> Bool

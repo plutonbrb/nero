@@ -40,6 +40,7 @@ library
                        Nero.Text
   build-depends:       base >=4.6 && <4.9,
                        bytestring >=0.10.0.2,
+                       transformers,
                        containers >=0.5.0.0,
                        text >=0.11.3.1,
                        bifunctors >=4.1.1.1,

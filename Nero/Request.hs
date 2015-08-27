@@ -65,7 +65,7 @@ instance HasQuery Request where
 -- | It traverses the values with the same key both in the /query string/
 --   and the /form encoded body/ of a @POST@ 'Request'.
 instance Param Request where
-    param k = params . ix k . traverse . _Just
+    param k = params . ix k . traverse
 
 instance Formed Request where
     form = payloaded . form
@@ -118,7 +118,7 @@ payloaded f (RequestCustom (CustomRequest m rc pl)) =
 --
 --   You might want to use 'param' for traversing a specific parameter.
 --
--- >>> let request = defaultRequestForm & query . at "name" ?~ fmap Just ("hello" :| ["out"]) & form  . at "name" ?~ pure (Just "there")
+-- >>> let request = defaultRequestForm & query . at "name" ?~ (pure "hello" <> pure "out") & form  . at "name" ?~ pure "there"
 -- >>> request ^.. param "name"
 -- ["hello","out","there"]
 params :: Traversal' Request MultiMap
@@ -213,4 +213,3 @@ instance HasUrl RequestCommon where
 
 instance HasQuery RequestCommon where
     query = url . query
-

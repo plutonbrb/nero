@@ -14,15 +14,17 @@ import Test.SmallCheck.Series.Instances ()
 import Test.Tasty.HUnit
 
 import Nero.Prelude
+import Nero.Param
 import Nero.Binary (render)
 
 import Nero.Url
 
-instance Monad m => Serial m Scheme
-
 instance (Serial m a) => Serial m (NonEmpty a)
-
 instance (CoSerial m a) => CoSerial m (NonEmpty a)
+instance (Serial m a) => Serial m (Values a)
+instance (CoSerial m a) => CoSerial m (Values a)
+
+instance Monad m => Serial m Scheme
 
 instance Monad m => Serial m Query
 
@@ -48,12 +50,12 @@ testRenderUrl = testGroup "Render"
       "http://example.com" @=? render (defaultUrl & host .~ "example.com")
   , testCase "single key" $ "http://example.com?query" @=?
       render (defaultUrl & host  .~ "example.com" 
-                         & query . at "query" ?~ pure mempty) -- There is NonEmpty Alternative instance
+                         & query . at "query" ?~ mempty)
   , testCase "One key/value" $ "http://example.com?query=value" @=?
       render (defaultUrl & host .~ "example.com"
-                         & query . at "query" ?~ pure (Just "value"))
+                         & query . at "query" ?~ pure "value")
   , testCase "Multiple key/value pairs" $ "http://example.com?key1=value1&key2=value2" @=?
       render (defaultUrl & host .~ "example.com"
-                         & query . at "key1" ?~ pure (Just "value1")
-                         & query . at "key2" ?~ pure (Just "value2"))
+                         & query . at "key1" ?~ pure "value1"
+                         & query . at "key2" ?~ pure "value2")
   ]
