@@ -118,7 +118,7 @@ payloaded f (RequestCustom (CustomRequest m rc pl)) =
 --
 --   You might want to use 'param' for traversing a specific parameter.
 --
--- >>> let request = defaultRequestForm & query . at "name" ?~ (pure "hello" <> pure "out") & form  . at "name" ?~ pure "there"
+-- >>> let request = defaultRequestForm & query . at "name" ?~ ("hello" <> "out") & form  . at "name" ?~ "there"
 -- >>> request ^.. param "name"
 -- ["hello","out","there"]
 params :: Traversal' Request MultiMap

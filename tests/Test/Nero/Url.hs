@@ -56,12 +56,12 @@ testRenderUrl = testGroup "Render"
                          & query . at "query" ?~ pure mempty)
   , testCase "One key/value" $ "http://example.com?query=value" @=?
       render (defaultUrl & host .~ "example.com"
-                         & query . at "query" ?~ pure "value")
+                         & query . at "query" ?~ "value")
   , testCase "One key, multiple values" $ "http://example.com?query=value1&query=value2" @=?
       render (defaultUrl & host .~ "example.com"
-                         & query . at "query" ?~ (pure "value1" <> pure "value2"))
+                         & query . at "query" ?~ ("value1" <> "value2"))
   , testCase "Multiple key/value pairs" $ "http://example.com?key1=value1&key2=value2" @=?
       render (defaultUrl & host .~ "example.com"
-                         & query . at "key1" ?~ pure "value1"
-                         & query . at "key2" ?~ pure "value2")
+                         & query . at "key1" ?~ "value1"
+                         & query . at "key2" ?~ "value2")
   ]

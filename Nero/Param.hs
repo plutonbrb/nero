@@ -22,6 +22,7 @@ module Nero.Param
   ) where
 
 import Prelude hiding (null)
+import Data.String
 import GHC.Generics (Generic)
 import Data.Functor.Compose
 import Data.Bifunctor (second)
@@ -52,6 +53,9 @@ newtype MultiMap = MultiMap { unMultiMap :: Map Text (Values Text) }
 
 newtype Values a = Values { unValues :: NonEmpty (Maybe a) }
                    deriving (Show,Eq,Generic,Functor)
+
+instance IsString a => IsString (Values a) where
+    fromString = pure . fromString
 
 instance Semigroup (Values a) where
     (Values ne1) <> (Values ne2) = Values $ ne1 <> ne2
@@ -103,19 +107,6 @@ instance Renderable MultiMap where
            . unMultiMap
 
 -- TODO: Document this properly!
--- -- | These are the cases expected:
--- --
--- --   >>> parse "key1&key2=val1&key2=val2"
--- --   Just (fromList [key1, [])
--- --
--- --   These cases will raise parsing errors: If you need to support those
--- --   you'll need to work with the raw query string.
--- --
--- -- >>> parse "query="
--- -- Nothing
--- --
--- -- >>> parse "query&query"
--- -- Nothing
 instance Parseable MultiMap where
     parse = return . fromList
           . fmap (\src -> case breakOn "=" src of
