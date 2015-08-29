@@ -62,6 +62,9 @@ instance HasPath Request where
 instance HasQuery Request where
     query = url . query
 
+instance Queried Request where
+    queried = url . queried
+
 -- | It traverses the values with the same key both in the /query string/
 --   and the /form encoded body/ of a @POST@ 'Request'.
 instance Param Request where
@@ -118,15 +121,15 @@ payloaded f (RequestCustom (CustomRequest m rc pl)) =
 --
 --   You might want to use 'param' for traversing a specific parameter.
 --
--- >>> let request = defaultRequestForm & query . at "name" ?~ ("hello" <> "out") & form  . at "name" ?~ "there"
+-- >>> let request = defaultRequestForm & queried . at "name" ?~ ("hello" <> "out") & form . at "name" ?~ "there"
 -- >>> request ^.. param "name"
 -- ["hello","out","there"]
 params :: Traversal' Request MultiMap
-params f request@(RequestGET {}) = query f request
+params f request@(RequestGET {}) = queried f request
 params f (RequestPOST (POST rc pl)) =
-    RequestPOST <$> (POST <$> query f rc <*> form f pl)
+    RequestPOST <$> (POST <$> queried f rc <*> form f pl)
 params f (RequestCustom (CustomRequest m rc pl)) =
-    RequestCustom <$> (CustomRequest <$> pure m <*> query f rc <*> form f pl)
+    RequestCustom <$> (CustomRequest <$> pure m <*> queried f rc <*> form f pl)
 
 -- ** GET
 
@@ -150,6 +153,9 @@ instance HasPath GET where
 
 instance HasQuery GET where
     query = url . query
+
+instance Queried GET where
+    queried = url . queried
 
 -- ** POST
 
@@ -177,6 +183,9 @@ instance HasPath POST where
 instance HasQuery POST where
     query = url . query
 
+instance Queried POST where
+    queried = url . queried
+
 -- ** Custom method Request
 
 data CustomRequest = CustomRequest CustomMethod RequestCommon Payload
@@ -190,6 +199,9 @@ instance HasUrl CustomRequest where
 
 instance HasQuery CustomRequest where
     query = requestCommon . query
+
+instance Queried CustomRequest where
+    queried = requestCommon . queried
 
 type CustomMethod = ByteString
 
@@ -213,3 +225,6 @@ instance HasUrl RequestCommon where
 
 instance HasQuery RequestCommon where
     query = url . query
+
+instance Queried RequestCommon where
+    queried = url . queried

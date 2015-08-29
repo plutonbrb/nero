@@ -24,9 +24,8 @@ instance (CoSerial m a) => CoSerial m (Values a)
 
 instance Monad m => Serial m Scheme
 
-instance Monad m => Serial m Query
-
-instance Monad m => CoSerial m Query
+instance Monad m => Serial m MultiMap
+instance Monad m => CoSerial m MultiMap
 
 instance Monad m => Serial m Url
 
@@ -48,18 +47,18 @@ testRenderUrl = testGroup "Render"
       "http://example.com" @=? render (defaultUrl & host .~ "example.com")
   , testCase "single key" $ "http://example.com?query" @=?
       render (defaultUrl & host  .~ "example.com" 
-                         & query . at "query" ?~ mempty)
+                         & queried . at "query" ?~ mempty)
   , testCase "single key with empty value" $ "http://example.com?query=" @=?
       render (defaultUrl & host  .~ "example.com" 
-                         & query . at "query" ?~ pure mempty)
+                         & queried . at "query" ?~ pure mempty)
   , testCase "One key/value" $ "http://example.com?query=value" @=?
       render (defaultUrl & host .~ "example.com"
-                         & query . at "query" ?~ "value")
+                         & queried . at "query" ?~ "value")
   , testCase "One key, multiple values" $ "http://example.com?query=value1&query=value2" @=?
       render (defaultUrl & host .~ "example.com"
-                         & query . at "query" ?~ ("value1" <> "value2"))
+                         & queried . at "query" ?~ ("value1" <> "value2"))
   , testCase "Multiple key/value pairs" $ "http://example.com?key1=value1&key2=value2" @=?
       render (defaultUrl & host .~ "example.com"
-                         & query . at "key1" ?~ "value1"
-                         & query . at "key2" ?~ "value2")
+                         & queried . at "key1" ?~ "value1"
+                         & queried . at "key2" ?~ "value2")
   ]

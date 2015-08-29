@@ -15,6 +15,7 @@ module Nero.Url
   , HasHost(..)
   , HasPath(..)
   , HasQuery(..)
+  , Queried(..)
   , Param(..)
   ) where
 
@@ -42,16 +43,19 @@ instance HasHost Url where
 instance HasQuery Url where
     query f (Url s h p q) = Url s h p <$> f q
 
+instance Queried Url where
+    queried = query . binary
+
 instance HasPath Url where
     path f (Url s h p q) = (\p' -> Url s h p' q) <$> f p
 
 instance Param Url where
-    param k = query . param k
+    param k = queried . param k
 
 instance Renderable Url where
     render (Url s h p q) = render s <> "://" <> h <> utf8 # p <> (
-        if not (null q)
-           then "?" <> render q
+        if isn't _Empty q
+           then "?" <> q
            else mempty)
 
 -- | The scheme given in the 'Url', i.e. @http@ or @https@.
@@ -72,8 +76,10 @@ type Host = ByteString
 -- | Path after the host name in a 'Url'.
 type Path = Text
 
+type Query = ByteString
+
 -- | The /query string/ in the form of a 'MultiMap'.
-type Query = MultiMap
+type QueryMap = MultiMap
 
 -- | 'Lens'' for types with an 'Url'.
 class HasUrl a where
@@ -94,3 +100,6 @@ class HasPath a where
 -- | 'Lens'' for types with a 'Query'.
 class HasQuery a where
     query :: Lens' a Query
+
+class Queried a where
+    queried :: Traversal' a QueryMap
