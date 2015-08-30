@@ -12,7 +12,6 @@ module Nero.Request
   , _POST
   , method
   , payloaded
-  , params
   -- ** GET
   , GET
   -- ** POST
@@ -62,16 +61,23 @@ instance HasPath Request where
 instance HasQuery Request where
     query = url . query
 
-instance Queried Request where
-    queried = url . queried
-
--- | It traverses the values with the same key both in the /query string/
---   and the /form encoded body/ of a @POST@ 'Request'.
-instance Param Request where
-    param k = params . ix k . traverse
-
-instance Formed Request where
-    form = payloaded . form
+-- | This 'Traversal' lets you traverse every HTTP parameter regardless of
+--   whether it's present in the /query string/ or in the /form encoded body/
+--   of a @POST@ 'Request'. In the rare case where there are HTTP parameters in
+--   both, every parameter is still being traversed starting from the /query
+--   string/.
+--
+--   You might want to use 'param' for traversing a specific parameter.
+--
+--   >>> let request = defaultRequestForm & url . params . at "name" ?~ ("hello" <> "out") & payloaded . params . at "name" ?~ "there"
+--   >>> request ^.. param "name"
+--   ["hello","out","there"]
+instance Params Request where
+    params f request@(RequestGET {}) = params f request
+    params f (RequestPOST (POST rc pl)) =
+        RequestPOST <$> (POST <$> params f rc <*> form f pl)
+    params f (RequestCustom (CustomRequest m rc pl)) =
+        RequestCustom <$> (CustomRequest <$> pure m <*> params f rc <*> form f pl)
 
 instance Prefixed Request where
     prefixed pat = prism'
@@ -113,24 +119,6 @@ payloaded f (RequestPOST (POST rc pl)) =
 payloaded f (RequestCustom (CustomRequest m rc pl)) =
     RequestCustom <$> (CustomRequest <$> pure m <*> pure rc <*> f pl)
 
--- | This 'Traversal' lets you traverse every HTTP parameter regardless of
---   whether it's present in the /query string/ or in the /form encoded body/
---   of a @POST@ 'Request'. In the rare case where there are HTTP parameters in
---   both, every parameter is still being traversed starting from the /query
---   string/.
---
---   You might want to use 'param' for traversing a specific parameter.
---
--- >>> let request = defaultRequestForm & queried . at "name" ?~ ("hello" <> "out") & form . at "name" ?~ "there"
--- >>> request ^.. param "name"
--- ["hello","out","there"]
-params :: Traversal' Request MultiMap
-params f request@(RequestGET {}) = queried f request
-params f (RequestPOST (POST rc pl)) =
-    RequestPOST <$> (POST <$> queried f rc <*> form f pl)
-params f (RequestCustom (CustomRequest m rc pl)) =
-    RequestCustom <$> (CustomRequest <$> pure m <*> queried f rc <*> form f pl)
-
 -- ** GET
 
 -- | A @GET@ 'Request'.
@@ -154,8 +142,8 @@ instance HasPath GET where
 instance HasQuery GET where
     query = url . query
 
-instance Queried GET where
-    queried = url . queried
+instance Params GET where
+    params = url . params
 
 -- ** POST
 
@@ -183,8 +171,8 @@ instance HasPath POST where
 instance HasQuery POST where
     query = url . query
 
-instance Queried POST where
-    queried = url . queried
+instance Params POST where
+    params = url . params
 
 -- ** Custom method Request
 
@@ -200,8 +188,8 @@ instance HasUrl CustomRequest where
 instance HasQuery CustomRequest where
     query = requestCommon . query
 
-instance Queried CustomRequest where
-    queried = requestCommon . queried
+instance Params CustomRequest where
+    params = requestCommon . params
 
 type CustomMethod = ByteString
 
@@ -226,5 +214,5 @@ instance HasUrl RequestCommon where
 instance HasQuery RequestCommon where
     query = url . query
 
-instance Queried RequestCommon where
-    queried = url . queried
+instance Params RequestCommon where
+    params = url . params

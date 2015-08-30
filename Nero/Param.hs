@@ -12,10 +12,11 @@ parameters.
 module Nero.Param
   (
   -- * HTTP Parameters
-    Param(..)
-  , Values
+    Params(..)
+  , param
   -- * MultiMap
   , MultiMap
+  , Values
   , fromList
   , singleton
   , null
@@ -40,9 +41,14 @@ import Nero.Text
 
 -- * HTTP Parameters
 
+-- | A 'Traversal'' for, usually, getting a single `MultiMap`s. When empty it
+--   means there was a failure obtaining it, by parsing for example.
+class Params a where
+    params :: Traversal' a MultiMap
+
 -- | A 'Traversal'' of the values of a given HTTP parameter.
-class Param a where
-    param :: Text -> Traversal' a Text
+param :: Params a => Text -> Traversal' a Text
+param k = params . ix k . traverse
 
 -- * MultiMap
 
@@ -94,9 +100,6 @@ instance Ixed MultiMap where
 instance At MultiMap where
     at k = _Wrapped' . at k
 
-instance Param MultiMap where
-    param k = ix k . traverse
-
 -- | Encode a 'MultiMap' with the typical query string format.
 instance Renderable MultiMap where
     render = review utf8
@@ -108,12 +111,13 @@ instance Renderable MultiMap where
 
 -- TODO: Document this properly!
 instance Parseable MultiMap where
-    parse = return . fromList
-          . fmap (\src -> case breakOn "=" src of
-                               Nothing    -> (src, Nothing)
-                               Just (k,v) -> (k, Just v))
-          . T.splitOn "&"
-        <=< preview utf8
+    parse "" = pure mempty
+    parse bs = return . fromList
+             . fmap (\src -> case breakOn "=" src of
+                                  Nothing    -> (src, Nothing)
+                                  Just (k,v) -> (k, Just v))
+             . T.splitOn "&"
+           <=< preview utf8 $ bs
 
 -- | Like 'Map.singleton' from "Data.Map".
 singleton :: Text -> MultiMap

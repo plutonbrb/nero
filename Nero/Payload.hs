@@ -14,9 +14,7 @@ module Nero.Payload
   , Body
   , HasBody(..)
   -- * Form
-  , Form
-  , _Form
-  , Formed(..)
+  , form
   ) where
 
 import GHC.Generics (Generic)
@@ -74,22 +72,12 @@ instance HasBody Payload where
 
 -- * Form
 
--- | A 'MultiMap' in the context of a form.
-type Form = MultiMap
-
 -- | A 'Prism'' to obtain a 'Form' from a 'Payload' and make 'Payload' from
 --   a 'Form'.
-_Form :: Prism' Payload Form
-_Form = prism' (PayloadForm . review binary) $ \case
+form :: Prism' Payload MultiMap
+form = prism' (PayloadForm . review binary) $ \case
     PayloadForm b -> b ^? binary
     _             -> Nothing
 
--- | A 'Traversal'' to access a potential 'Form'.
-class Formed a where
-    form :: Traversal' a Form
-
-instance Formed Payload where
-    form = _Form
-
-instance Param Payload where
-    param k = form . ix k . traverse
+instance Params Payload where
+    params = form
