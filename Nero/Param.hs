@@ -127,7 +127,8 @@ singleton k = MultiMap . Map.singleton k $ mempty
 --
 --   Use 'Nothing' for keys without values.
 fromList :: [(Text, Maybe Text)] -> MultiMap
-fromList = MultiMap . Map.fromListWith (<>) . fmap (second $ maybe mempty pure)
+fromList = MultiMap . Map.fromListWith (flip (<>))
+                    . fmap (second $ maybe mempty pure)
 
 -- | Is the map empty?
 null :: MultiMap -> Bool
