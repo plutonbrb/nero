@@ -31,3 +31,6 @@ script:
 
 after_script:
   - hpc-coveralls --exclude-dir=tests tasty
+
+notifications:
+  slack: plutonbrb:ECXOyMaVEb7zMLCZTuiQRgVW
