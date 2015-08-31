@@ -9,6 +9,7 @@ import Test.Tasty (TestTree, testGroup)
 import Test.SmallCheck.Series (Serial,CoSerial)
 import Test.SmallCheck.Series.Instances ()
 import Test.Tasty.SmallCheck.Laws.Monoid (testMonoid)
+import Test.Tasty.SmallCheck.Laws.Applicative (testApplicative)
 import Test.Tasty.SmallCheck.Lens.Prism (testPrism)
 
 import Nero.Prelude
@@ -28,4 +29,5 @@ tests = testGroup "MultiMap"
   [ testMonoid (Proxy :: Proxy MultiMap)
   -- It's `Parseable` and `Renderable`
   , testPrism (binary :: Prism' ByteString MultiMap)
+  , testApplicative (Proxy :: Proxy (Values ()))
   ]
