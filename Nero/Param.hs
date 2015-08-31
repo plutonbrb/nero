@@ -21,6 +21,7 @@ module Nero.Param
   , null
   -- * MultiMap Values
   , Values
+  , defaultValues
   ) where
 
 import Prelude hiding (null)
@@ -98,14 +99,14 @@ instance Parseable MultiMap where
 
 -- | Like 'Map.singleton' from "Data.Map".
 singleton :: Text -> MultiMap
-singleton k = MultiMap . Map.singleton k $ mempty
+singleton k = MultiMap . Map.singleton k $ defaultValues
 
 -- | Like 'Map.fromList' from "Data.Map" but 'mappend'ing the values.
 --
 --   Use 'Nothing' for keys without values.
 fromList :: [(Text, Maybe Text)] -> MultiMap
 fromList = MultiMap . Map.fromListWith (flip (<>))
-                    . fmap (second $ maybe mempty pure)
+                    . fmap (second $ maybe defaultValues pure)
 
 -- | Is the map empty?
 null :: MultiMap -> Bool
@@ -116,15 +117,14 @@ null = Map.null . unMultiMap
 newtype Values a = Values { unValues :: NonEmpty (Maybe a) }
                    deriving (Show,Eq,Generic,Functor)
 
+defaultValues :: Values a
+defaultValues = Values $ pure Nothing
+
 instance IsString a => IsString (Values a) where
     fromString = pure . fromString
 
 instance Semigroup (Values a) where
     (Values ne1) <> (Values ne2) = Values $ ne1 <> ne2
-
-instance Monoid (Values a) where
-    mempty = Values $ Nothing :| []
-    mappend = (<>)
 
 instance Applicative Values where
     pure = Values . pure . pure

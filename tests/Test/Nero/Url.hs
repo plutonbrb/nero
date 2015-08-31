@@ -47,7 +47,7 @@ testRenderUrl = testGroup "Render"
       "http://example.com" @=? render (defaultUrl & host .~ "example.com")
   , testCase "single key" $ "http://example.com?query" @=?
       render (defaultUrl & host  .~ "example.com"
-                         & params . at "query" ?~ mempty)
+                         & params . at "query" ?~ defaultValues)
   , testCase "single key with empty value" $ "http://example.com?query=" @=?
       render (defaultUrl & host  .~ "example.com"
                          & params . at "query" ?~ pure mempty)
