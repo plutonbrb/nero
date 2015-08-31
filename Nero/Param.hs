@@ -16,10 +16,11 @@ module Nero.Param
   , param
   -- * MultiMap
   , MultiMap
-  , Values
   , fromList
   , singleton
   , null
+  -- * MultiMap Values
+  , Values
   ) where
 
 import Prelude hiding (null)
@@ -56,30 +57,6 @@ param k = params . ix k . traverse
 --   frameworks.
 newtype MultiMap = MultiMap { unMultiMap :: Map Text (Values Text) }
                    deriving (Show,Eq,Generic)
-
-newtype Values a = Values { unValues :: NonEmpty (Maybe a) }
-                   deriving (Show,Eq,Generic,Functor)
-
-instance IsString a => IsString (Values a) where
-    fromString = pure . fromString
-
-instance Semigroup (Values a) where
-    (Values ne1) <> (Values ne2) = Values $ ne1 <> ne2
-
-instance Monoid (Values a) where
-    mempty = Values $ Nothing :| []
-    mappend = (<>)
-
-instance Applicative Values where
-    pure = Values . pure . pure
-    (Values fs) <*> (Values xs) =
-        Values . getCompose $ Compose fs <*> Compose xs
-
-instance Foldable Values where
-    foldMap f (Values vs) = foldMap f (Compose vs)
-
-instance Traversable Values where
-    traverse f (Values vs) = Values . getCompose <$> traverse f (Compose vs)
 
 -- | The default monoid implementation of "Data.Map" is left biased, this
 --   implementation 'mappend's the values.
@@ -133,3 +110,29 @@ fromList = MultiMap . Map.fromListWith (flip (<>))
 -- | Is the map empty?
 null :: MultiMap -> Bool
 null = Map.null . unMultiMap
+
+-- * MultiMap Values
+
+newtype Values a = Values { unValues :: NonEmpty (Maybe a) }
+                   deriving (Show,Eq,Generic,Functor)
+
+instance IsString a => IsString (Values a) where
+    fromString = pure . fromString
+
+instance Semigroup (Values a) where
+    (Values ne1) <> (Values ne2) = Values $ ne1 <> ne2
+
+instance Monoid (Values a) where
+    mempty = Values $ Nothing :| []
+    mappend = (<>)
+
+instance Applicative Values where
+    pure = Values . pure . pure
+    (Values fs) <*> (Values xs) =
+        Values . getCompose $ Compose fs <*> Compose xs
+
+instance Foldable Values where
+    foldMap f (Values vs) = foldMap f (Compose vs)
+
+instance Traversable Values where
+    traverse f (Values vs) = Values . getCompose <$> traverse f (Compose vs)
