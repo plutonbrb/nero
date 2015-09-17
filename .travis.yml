@@ -6,6 +6,7 @@ cache:
   directories:
     - $HOME/.cabsnap
     - $HOME/.cabal/packages
+    - $HOME/.coveralls
 
 before_cache:
   - rm -fv $HOME/.cabal/packages/hackage.haskell.org/build-reports.log
@@ -38,18 +39,13 @@ install:
 
  - travis_retry cabal update -v
 
- - if [[ -f $HOME/.cabsnap/bin/hpc-coveralls && -f $HOME/.cabsnap/bin/run-cabal-test ]];
+ - if [ -f $HOME/.coveralls/hpc-coveralls ];
    then
      echo "hpc-coveralls cache HIT";
-     mkdir -p $HOME/.cabal/bin/;
-     cp -a $HOME/.cabsnap/bin/{hpc-coveralls,run-cabal-test} $HOME/.cabal/bin/;
    else
      echo "hpc-coveralls cache MISS";
      cabal sandbox init;
-     cabal install hpc-coveralls --bindir=$HOME/.cabal/bin/ --reorder-goals --solver=modular;
-     echo "snapshotting hpc-coveralls to build-cache";
-     mkdir -p $HOME/.cabsnap/bin/;
-     cp -a $HOME/.cabal/bin/{hpc-coveralls,run-cabal-test} $HOME/.cabsnap/bin/;
+     cabal install hpc-coveralls --bindir=$HOME/.coveralls/ --reorder-goals --solver=modular;
      cabal sandbox delete;
    fi
 
@@ -86,7 +82,7 @@ script:
  - if [ -f configure.ac ]; then autoreconf -i; fi
  - cabal configure --enable-tests --enable-benchmarks --enable-library-coverage -v2  # -v2 provides useful information for debugging
  - cabal build   # this builds all libraries and executables (including tests/benchmarks)
- - $HOME/.cabal/bin/run-cabal-test --cabal-name=cabal --show-details=always
+ - $HOME/.coveralls/run-cabal-test --cabal-name=cabal --show-details=always
  - cabal check
  - cabal sdist   # tests that a source-distribution can be generated
 
@@ -97,5 +93,8 @@ script:
    (cd dist && cabal install --force-reinstalls "$SRC_TGZ")
 
 after_script:
- - $HOME/.cabal/bin/hpc-coveralls --exclude-dir=tests tasty
+ - $HOME/.coveralls/hpc-coveralls --exclude-dir=tests tasty
+
+notifications:
+  slack: plutonbrb:SvKqVYWRUka79lWMRUTJRY15
 # EOF
