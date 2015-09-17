@@ -47,6 +47,9 @@ install:
      echo "hpc-coveralls cache MISS";
      cabal sandbox init;
      cabal install hpc-coveralls --bindir=$HOME/.cabal/bin/ --reorder-goals --solver=modular;
+     echo "snapshotting hpc-coveralls to build-cache";
+     mkdir -p $HOME/.cabsnap/bin/;
+     cp -a $HOME/.cabal/bin/{hpc-coveralls,run-cabal-test} $HOME/.cabsnap/bin/;
      cabal sandbox delete;
    fi
 
