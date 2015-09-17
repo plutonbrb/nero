@@ -3,14 +3,13 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 module Test.Nero.Param (tests) where
 
-import Data.Proxy (Proxy(..))
 import Data.ByteString.Lazy (ByteString)
 import Test.Tasty (TestTree, testGroup)
-import Test.SmallCheck.Series (Serial,CoSerial)
+import Test.SmallCheck.Series (Series, Serial(series),CoSerial)
 import Test.SmallCheck.Series.Instances ()
-import Test.Tasty.SmallCheck.Laws.Monoid (testMonoid)
-import Test.Tasty.SmallCheck.Laws.Applicative (testApplicative)
-import Test.Tasty.SmallCheck.Lens.Prism (testPrism)
+import qualified Test.Tasty.Laws.Monoid as Monoid
+import qualified Test.Tasty.Laws.Applicative as Applicative
+import qualified Test.Tasty.Lens.Prism as Prism
 
 import Nero.Prelude
 import Nero.Binary
@@ -26,8 +25,8 @@ instance Monad m => CoSerial m MultiMap
 
 tests :: TestTree
 tests = testGroup "MultiMap"
-  [ testMonoid (Proxy :: Proxy MultiMap)
+  [ Monoid.test (series :: Series IO MultiMap)
   -- It's `Parseable` and `Renderable`
-  , testPrism (binary :: Prism' ByteString MultiMap)
-  , testApplicative (Proxy :: Proxy (Values ()))
+  , Prism.test (binary :: Prism' ByteString MultiMap)
+  , Applicative.test (series :: Series IO (Values ()))
   ]

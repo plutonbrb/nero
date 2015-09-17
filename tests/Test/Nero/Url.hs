@@ -5,12 +5,14 @@
 
 module Test.Nero.Url (tests) where
 
+import Data.Proxy (Proxy(..))
 import Data.Text.Lazy (Text)
 import Test.Tasty (TestTree, testGroup)
-import Test.Tasty.SmallCheck.Lens (testLens, testTraversal)
 import Test.SmallCheck.Series (Serial, CoSerial)
 import Test.SmallCheck.Series.Instances ()
 import Test.Tasty.HUnit (testCase, (@=?))
+import qualified Test.Tasty.Lens.Lens as Lens
+import qualified Test.Tasty.Lens.Traversal as Traversal
 
 import Nero.Prelude
 import Nero.Binary
@@ -31,12 +33,12 @@ instance Monad m => Serial m Url
 
 tests :: TestTree
 tests = testGroup "Url"
-  [ testLens (host  :: Lens' Url Host)
-  , testLens (query :: Lens' Url Query)
-  , testLens (path  :: Lens' Url Path)
-  , testTraversal (param "aaa" :: Traversal' Url Text)
-  , testTraversal (param "bbb" :: Traversal' Url Text)
-  , testTraversal (param "" :: Traversal' Url Text)
+  [ Lens.test (host  :: Lens' Url Host)
+  , Lens.test (query :: Lens' Url Query)
+  , Lens.test (path  :: Lens' Url Path)
+  , Traversal.test (Proxy :: Proxy Maybe) (param "aaa" :: Traversal' Url Text)
+  , Traversal.test (Proxy :: Proxy (Either ())) (param "bbb" :: Traversal' Url Text)
+  , Traversal.test (Proxy :: Proxy []) (param "" :: Traversal' Url Text)
   , testRenderUrl
   ]
 

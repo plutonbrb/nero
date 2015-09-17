@@ -5,9 +5,10 @@
 module Test.Nero.Payload where
 
 import Test.Tasty (TestTree, testGroup)
-import Test.Tasty.SmallCheck.Lens (testLens, testPrism)
 import Test.SmallCheck.Series (Serial, CoSerial)
 import Test.SmallCheck.Series.Instances ()
+import qualified Test.Tasty.Lens.Lens as Lens
+import qualified Test.Tasty.Lens.Prism as Prism
 
 import Nero.Prelude
 import Nero.Param
@@ -26,6 +27,6 @@ instance Monad m => Serial m Encoding
 
 tests :: TestTree
 tests = testGroup "Payload"
-  [ testLens  (body :: Lens' Payload Body)
-  , testPrism form
+  [ Lens.test  (body :: Lens' Payload Body)
+  , Prism.test form
   ]

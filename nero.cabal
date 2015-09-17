@@ -76,8 +76,8 @@ test-suite tasty
                        nero,
                        smallcheck >=1.1,
                        smallcheck-series >=0.4,
-                       smallcheck-laws >=0.1,
-                       smallcheck-lens >=0.1,
+                       tasty-laws >=0.3.1,
+                       tasty-lens >=0.3,
                        tasty >=0.10,
                        tasty-hunit >=0.9,
                        tasty-smallcheck >=0.8

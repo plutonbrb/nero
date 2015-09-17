@@ -2,7 +2,9 @@ flags: {}
 packages:
 - '.'
 extra-deps:
-- smallcheck-lens-0.1
-- smallcheck-laws-0.1
-- smallcheck-series-0.4
-resolver: lts-3.1
+- tasty-lens-0.3
+- smallcheck-lens-0.3
+- tasty-laws-0.3.1
+- smallcheck-laws-0.3
+- smallcheck-series-0.5.1
+resolver: lts-3.5
