@@ -13,13 +13,13 @@ before_install:
  - travis_retry sudo apt-get update
  - travis_retry sudo apt-get install cabal-install-$CABALVER ghc-$GHCVER
  - export PATH=/opt/ghc/$GHCVER/bin:/opt/cabal/$CABALVER/bin:$PATH
+ - travis_retry cabal update
+ - cabal install hpc-coveralls
 
 install:
  - cabal --version
  - echo "$(ghc --version) [$(ghc --print-project-git-commit-id 2> /dev/null || echo '?')]"
- - travis_retry cabal update
- - cabal install --only-dependencies --enable-tests
- - cabal install hpc-coveralls
+ - cabal install --only-dependencies --enable-tests --force-reinstalls
  - export PATH=$HOME/.cabal/bin:$PATH
 
 script:
