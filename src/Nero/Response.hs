@@ -15,8 +15,8 @@ module Nero.Response
   , status
   ) where
 
-import qualified Data.ByteString.Lazy.Char8 as B8
-import Data.Text.Lazy.Lens (utf8)
+import qualified Data.ByteString.Char8 as B8
+import Data.Text.Strict.Lens (utf8)
 
 import Nero.Prelude
 import Nero.Common

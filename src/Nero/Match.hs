@@ -21,7 +21,7 @@ module Nero.Match
 import Text.Read (readMaybe)
 
 import Data.Bitraversable (bitraverse)
-import qualified Data.Text.Lazy as T
+import qualified Data.Text as T
 
 import Nero.Prelude
 import Nero.Text

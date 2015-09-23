@@ -30,8 +30,8 @@ import Data.Foldable as X (Foldable, fold, foldMap)
 import Data.Monoid as X (Monoid, mappend, mempty)
 
 import Data.List.NonEmpty as X (NonEmpty((:|)))
-import Data.ByteString.Lazy as X (ByteString)
-import Data.Text.Lazy as X (Text)
+import Data.ByteString as X (ByteString)
+import Data.Text as X (Text)
 import Data.Semigroup as X (Semigroup((<>)))
 import Control.Lens as X
 

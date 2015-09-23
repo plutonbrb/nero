@@ -19,7 +19,7 @@ module Nero.Url
 
 import Prelude hiding (null)
 import GHC.Generics (Generic)
-import Data.Text.Lazy.Lens (utf8)
+import Data.Text.Strict.Lens (utf8)
 
 import Nero.Prelude
 import Nero.Param

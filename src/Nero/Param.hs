@@ -33,9 +33,9 @@ import GHC.Generics (Generic)
 import qualified Data.List.NonEmpty as NonEmpty
 import Data.Map (Map)
 import qualified Data.Map as Map
-import Data.Text.Lazy (intercalate)
-import qualified Data.Text.Lazy as T
-import Data.Text.Lazy.Lens (utf8)
+import Data.Text (intercalate)
+import qualified Data.Text as T
+import Data.Text.Strict.Lens (utf8)
 
 import Nero.Binary
 import Nero.Compat

@@ -14,7 +14,7 @@ module Nero.Text
 import Data.Maybe (fromJust)
 import Data.String (IsString(fromString))
 import Data.Bifunctor (first)
-import qualified Data.Text.Lazy as T
+import qualified Data.Text as T
 
 import Nero.Prelude
 
@@ -24,7 +24,7 @@ instance IsString Text1 where
     fromString = fromJust . fromText . fromString
 
 text1 :: Char -> Text -> Text1
-text1 c txt = Text1 $ T.cons c txt
+text1 c txt = Text1 $ cons c txt
 
 fromText :: Text -> Maybe Text1
 fromText  = fmap (uncurry text1) . uncons

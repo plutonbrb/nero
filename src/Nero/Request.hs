@@ -18,7 +18,7 @@ module Nero.Request
   , POST
   ) where
 
-import qualified Data.Text.Lazy as T
+import qualified Data.Text as T
 
 import Nero.Common
 import Nero.Match
