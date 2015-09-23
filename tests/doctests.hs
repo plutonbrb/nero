@@ -9,8 +9,7 @@ main :: IO ()
 main = doctest . ([ "-idist/build/autogen"
                   , "-optP-include"
                   , "-optPdist/build/autogen/cabal_macros.h"
-                  , "Nero.hs"
-                  ] ++) =<< glob "Nero/**/*.hs"
+                  ] ++) =<< glob "src/**/*.hs"
 #else
-main = doctest . ("Nero.hs" :) =<< glob "Nero/**/*.hs"
+main = doctest =<< glob "src/**/*.hs"
 #endif
