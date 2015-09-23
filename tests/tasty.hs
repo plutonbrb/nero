@@ -8,7 +8,7 @@ import qualified Test.Nero.Payload as Payload
 
 main :: IO ()
 main = defaultMain $ testGroup "Nero"
-  [ localOption (3 :: SmallCheckDepth) Param.tests
+  [ localOption (5 :: SmallCheckDepth) Param.tests
   , localOption (3 :: SmallCheckDepth) Url.tests
-  , localOption (3 :: SmallCheckDepth) Payload.tests
+  , localOption (4 :: SmallCheckDepth) Payload.tests
   ]

@@ -1,6 +1,7 @@
 flags: {}
 packages:
 - '.'
+- tasty-lens
 extra-deps:
 - tasty-lens-0.3
 - smallcheck-lens-0.3
