@@ -7,7 +7,6 @@ module Test.Nero.Url (tests) where
 
 import Data.Maybe (fromMaybe)
 import Data.Proxy (Proxy(..))
-import Data.Text.Lazy (Text)
 import Test.Tasty (TestTree, testGroup)
 import Test.SmallCheck.Series (Serial(series), CoSerial(coseries))
 import Test.SmallCheck.Series.Instances ()

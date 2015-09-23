@@ -18,7 +18,6 @@ module Nero.Payload
   ) where
 
 import GHC.Generics (Generic)
-import Data.ByteString.Lazy (ByteString)
 
 import Nero.Binary
 import Nero.Prelude

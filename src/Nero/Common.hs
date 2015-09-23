@@ -1,7 +1,5 @@
-{-|
-These are the shared data types between "Nero.Request" and "Nero.Response"
-modules.
--}
+-- | These are the shared data types between "Nero.Request" and "Nero.Response"
+--   modules.
 module Nero.Common
   ( HttpVersion
   , http11
@@ -9,7 +7,7 @@ module Nero.Common
   , HeaderName
   ) where
 
-import Data.ByteString (ByteString)
+import Nero.Prelude
 
 -- * Version
 

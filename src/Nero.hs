@@ -1,8 +1,6 @@
 {-# OPTIONS_HADDOCK not-home #-}
-{-|
-This module re-exports the essential functions for quickly writing @Nero@
-applications. Use the original modules for more specialized functions.
--}
+-- | This module re-exports the essential functions for quickly writing @Nero@
+--   applications. Use the original modules for more specialized functions.
 module Nero
   (
   -- * Server

@@ -16,12 +16,12 @@ module Nero.Application
   ) where
 
 import Data.Maybe (fromMaybe)
-import Nero.Compat (Alt(Alt, getAlt))
 
+import Nero.Compat (Alt(Alt, getAlt))
+import Nero.Match
 import Nero.Prelude
 import Nero.Request
 import Nero.Response
-import Nero.Match
 import Nero.Url
 
 -- $setup

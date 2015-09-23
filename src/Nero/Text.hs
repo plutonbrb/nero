@@ -11,8 +11,6 @@ module Nero.Text
   , breakOn1
   ) where
 
--- Avoid base > 4.8 warnings
-import Prelude hiding (mempty)
 import Data.Maybe (fromJust)
 import Data.String (IsString(fromString))
 import Data.Bifunctor (first)

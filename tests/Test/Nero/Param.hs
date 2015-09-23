@@ -4,7 +4,6 @@
 module Test.Nero.Param (tests) where
 
 import Data.Maybe (fromMaybe)
-import Data.ByteString.Lazy (ByteString)
 import Test.Tasty (TestTree, testGroup)
 import Test.SmallCheck.Series (Series, Serial(series),CoSerial(coseries))
 import Test.SmallCheck.Series.Instances ()

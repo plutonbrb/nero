@@ -1,6 +1,5 @@
 module Nero.Binary where
 
-import Data.ByteString.Lazy (ByteString)
 import Nero.Prelude
 
 -- | Represents something that can be serialized to a 'ByteString' with the

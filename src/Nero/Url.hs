@@ -19,8 +19,6 @@ module Nero.Url
 
 import Prelude hiding (null)
 import GHC.Generics (Generic)
-import Data.ByteString.Lazy (ByteString)
-import Data.Text.Lazy (Text)
 import Data.Text.Lazy.Lens (utf8)
 
 import Nero.Prelude

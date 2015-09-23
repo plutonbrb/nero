@@ -5,11 +5,9 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE TupleSections #-}
-{-|
-This module is mainly intended for internal use. "Nero.Request" and
-"Nero.Payload" should provide everything you need for dealing with HTTP
-parameters.
--}
+-- | This module is mainly intended for internal use. "Nero.Request" and
+--   "Nero.Payload" should provide everything you need for dealing with HTTP
+--   parameters.
 module Nero.Param
   (
   -- * HTTP Parameters
@@ -27,10 +25,11 @@ module Nero.Param
 
 import Prelude hiding (null)
 import Data.Bifunctor (second)
-import Data.Maybe (catMaybes)
 import Data.Functor.Compose (Compose(Compose,getCompose))
+import Data.Maybe (catMaybes)
 import Data.String (IsString(fromString))
 import GHC.Generics (Generic)
+
 import qualified Data.List.NonEmpty as NonEmpty
 import Data.Map (Map)
 import qualified Data.Map as Map
@@ -38,9 +37,9 @@ import Data.Text.Lazy (intercalate)
 import qualified Data.Text.Lazy as T
 import Data.Text.Lazy.Lens (utf8)
 
-import Nero.Prelude
 import Nero.Binary
 import Nero.Compat
+import Nero.Prelude
 import Nero.Text
 
 -- * HTTP Parameters

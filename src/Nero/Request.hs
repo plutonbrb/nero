@@ -18,7 +18,6 @@ module Nero.Request
   , POST
   ) where
 
-import Data.ByteString (ByteString)
 import qualified Data.Text.Lazy as T
 
 import Nero.Common

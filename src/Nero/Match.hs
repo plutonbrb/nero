@@ -2,9 +2,8 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE LambdaCase #-}
-{-|
-This module should be mostly used for matching the 'Nero.Url.Path' of a 'Nero.Request.Request', also known as __routing__.
--}
+-- | This module should be mostly used for matching the 'Nero.Url.Path' of
+--   a 'Nero.Request.Request', also known as __routing__.
 module Nero.Match
   (
   -- * Matching
@@ -20,9 +19,9 @@ module Nero.Match
   ) where
 
 import Text.Read (readMaybe)
-import Data.Text.Lazy (Text)
-import qualified Data.Text.Lazy as T
+
 import Data.Bitraversable (bitraverse)
+import qualified Data.Text.Lazy as T
 
 import Nero.Prelude
 import Nero.Text

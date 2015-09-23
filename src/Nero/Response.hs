@@ -15,9 +15,7 @@ module Nero.Response
   , status
   ) where
 
-import Data.ByteString (ByteString)
-import qualified Data.ByteString.Char8 as B8
-import Data.Text.Lazy (Text)
+import qualified Data.ByteString.Lazy.Char8 as B8
 import Data.Text.Lazy.Lens (utf8)
 
 import Nero.Prelude
@@ -32,7 +30,6 @@ data Response = ResponseOk Ok
               | ResponseMovedPermanently MovedPermanently
               | ResponseNotFound NotFound
                 deriving (Show,Eq)
-
 
 instance Location Response where
     location f (ResponseMovedPermanently mp) =
