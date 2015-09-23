@@ -5,10 +5,11 @@
 
 module Test.Nero.Url (tests) where
 
+import Data.Maybe (fromMaybe)
 import Data.Proxy (Proxy(..))
 import Data.Text.Lazy (Text)
 import Test.Tasty (TestTree, testGroup)
-import Test.SmallCheck.Series (Serial, CoSerial)
+import Test.SmallCheck.Series (Serial(series), CoSerial(coseries))
 import Test.SmallCheck.Series.Instances ()
 import Test.Tasty.HUnit (testCase, (@=?))
 import qualified Test.Tasty.Lens.Lens as Lens
@@ -17,6 +18,7 @@ import qualified Test.Tasty.Lens.Traversal as Traversal
 import Nero.Prelude
 import Nero.Binary
 import Nero.Param
+import Nero.Text
 import Nero.Url
 
 instance (Serial m a) => Serial m (NonEmpty a)
@@ -25,6 +27,11 @@ instance (Serial m a) => Serial m (Values a)
 instance (CoSerial m a) => CoSerial m (Values a)
 
 instance Monad m => Serial m Scheme
+
+instance Monad m => Serial m Text1 where
+    series = fromMaybe (text1 'a' mempty) . fromText <$> series
+instance Monad m => CoSerial m Text1 where
+    coseries = coseries
 
 instance Monad m => Serial m MultiMap
 instance Monad m => CoSerial m MultiMap
@@ -38,7 +45,6 @@ tests = testGroup "Url"
   , Lens.test (path  :: Lens' Url Path)
   , Traversal.test (Proxy :: Proxy Maybe) (param "aaa" :: Traversal' Url Text)
   , Traversal.test (Proxy :: Proxy (Either ())) (param "bbb" :: Traversal' Url Text)
-  , Traversal.test (Proxy :: Proxy []) (param "" :: Traversal' Url Text)
   , testRenderUrl
   ]
 

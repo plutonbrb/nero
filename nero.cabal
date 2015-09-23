@@ -35,9 +35,9 @@ library
                        Nero.Prelude,
                        Nero.Response,
                        Nero.Request,
+                       Nero.Text,
                        Nero.Url
-  other-modules:       Nero.Compat,
-                       Nero.Text
+  other-modules:       Nero.Compat
   build-depends:       base >=4.6 && <4.9,
                        bytestring >=0.10.0.2,
                        transformers >=0.3.0.0,

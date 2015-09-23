@@ -18,6 +18,7 @@ following:
 
 - 'NonEmpty', ':|' from "Data.List.NonEmpty".
 
+- 'Text', from "Data.Text.Lazy"
 -}
 module Nero.Prelude
   ( module X
@@ -31,6 +32,7 @@ import Control.Monad as X ((>=>), (<=<))
 import Data.Monoid as X (Monoid, mappend, mempty)
 import Data.Semigroup as X (Semigroup((<>)))
 import Data.List.NonEmpty as X (NonEmpty((:|)))
+import Data.Text.Lazy as X (Text)
 import Control.Lens as X
 
 import Control.Applicative ((<**>))

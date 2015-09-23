@@ -4,6 +4,7 @@
 {-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE TupleSections #-}
 {-|
 This module is mainly intended for internal use. "Nero.Request" and
 "Nero.Payload" should provide everything you need for dealing with HTTP
@@ -26,13 +27,14 @@ module Nero.Param
 
 import Prelude hiding (null)
 import Data.Bifunctor (second)
+import Data.Maybe (catMaybes)
 import Data.Functor.Compose (Compose(Compose,getCompose))
 import Data.String (IsString(fromString))
 import GHC.Generics (Generic)
 import qualified Data.List.NonEmpty as NonEmpty
 import Data.Map (Map)
 import qualified Data.Map as Map
-import Data.Text.Lazy (Text, intercalate)
+import Data.Text.Lazy (intercalate)
 import qualified Data.Text.Lazy as T
 import Data.Text.Lazy.Lens (utf8)
 
@@ -49,14 +51,14 @@ class Params a where
     params :: Traversal' a MultiMap
 
 -- | A 'Traversal'' of the values of a given HTTP parameter.
-param :: Params a => Text -> Traversal' a Text
+param :: Params a => Text1 -> Traversal' a Text
 param k = params . ix k . traverse
 
 -- * MultiMap
 
 -- | A 'Map' with multiple values. Also known as a @MultiDict@ in other web
 --   frameworks.
-newtype MultiMap = MultiMap { unMultiMap :: Map Text (Values Text) }
+newtype MultiMap = MultiMap { unMultiMap :: Map Text1 (Values Text) }
                    deriving (Show,Eq,Generic)
 
 -- | The default monoid implementation of "Data.Map" is left biased, this
@@ -67,10 +69,10 @@ instance Monoid MultiMap where
         MultiMap $ Map.unionWith (<>) m1 m2
 
 instance Wrapped MultiMap where
-    type Unwrapped MultiMap = Map Text (Values Text)
+    type Unwrapped MultiMap = Map Text1 (Values Text)
     _Wrapped' = iso unMultiMap MultiMap
 
-type instance Index MultiMap = Text
+type instance Index MultiMap = Text1
 type instance IxValue MultiMap = Values Text
 instance Ixed MultiMap where
     ix k = _Wrapped' . ix k
@@ -85,26 +87,28 @@ instance Renderable MultiMap where
            . foldMapWithKey (\k -> NonEmpty.toList
                                  . fmap (maybe k ((k <> "=") <>)))
            . fmap unValues
+           . Map.mapKeys toText1
            . unMultiMap
 
 -- TODO: Document this properly!
 instance Parseable MultiMap where
     parse "" = pure mempty
-    parse bs = return . fromList
-             . fmap (\src -> case breakOn "=" src of
-                                  Nothing    -> (src, Nothing)
-                                  Just (k,v) -> (k, Just v))
+    parse bs = pure . fromList
+             . catMaybes
+             . fmap (\src -> case breakOn1 "=" src of
+                                  Nothing    -> (,Nothing) <$> fromText src
+                                  Just (k,v) -> Just (k, Just v))
              . T.splitOn "&"
            <=< preview utf8 $ bs
 
 -- | Like 'Map.singleton' from "Data.Map".
-singleton :: Text -> MultiMap
+singleton :: Text1 -> MultiMap
 singleton k = MultiMap . Map.singleton k $ defaultValues
 
 -- | Like 'Map.fromList' from "Data.Map" but 'mappend'ing the values.
 --
 --   Use 'Nothing' for keys without values.
-fromList :: [(Text, Maybe Text)] -> MultiMap
+fromList :: [(Text1, Maybe Text)] -> MultiMap
 fromList = MultiMap . Map.fromListWith (flip (<>))
                     . fmap (second $ maybe defaultValues pure)
 
