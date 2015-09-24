@@ -70,6 +70,7 @@ test-suite tasty
   other-modules:       Test.Nero.Match
                        Test.Nero.Param
                        Test.Nero.Payload
+                       Test.Nero.Response
                        Test.Nero.Url
   build-depends:       base >= 4.6 && <4.9,
                        bytestring >=0.10.0.2,

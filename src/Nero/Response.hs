@@ -1,11 +1,15 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE DeriveGeneric #-}
 module Nero.Response
   (
   -- * Response
     Response
+  , Ok
   , ok
+  , MovedPermanently
   , movedPermanently
+  , NotFound
   , notFound
   , _Ok
   , _MovedPermanently
@@ -13,7 +17,13 @@ module Nero.Response
   -- * Status
   , Status
   , status
+  -- * Internal
+  -- TODO: This should not be exported. It's exported for the time being for
+  -- the tests until the testing libraries are refactored.
+  , ResponseCommon
   ) where
+
+import GHC.Generics (Generic)
 
 import qualified Data.ByteString.Char8 as B8
 import Data.Text.Strict.Lens (utf8)
@@ -29,7 +39,7 @@ import Nero.Url
 data Response = ResponseOk Ok
               | ResponseMovedPermanently MovedPermanently
               | ResponseNotFound NotFound
-                deriving (Show,Eq)
+                deriving (Eq,Show,Generic)
 
 instance Location Response where
     location f (ResponseMovedPermanently mp) =
@@ -81,21 +91,21 @@ _NotFound = prism' ResponseNotFound $ \case
 
 -- ** OK
 
-data Ok = Ok ResponseCommon Payload deriving (Show,Eq)
+data Ok = Ok ResponseCommon Payload deriving (Eq,Show,Generic)
 
 instance HasBody Ok where
     body f (Ok rc pl) = Ok rc <$> body f pl
 
 -- ** Moved
 
-data MovedPermanently = MovedPermanently ResponseCommon Url deriving (Show,Eq)
+data MovedPermanently = MovedPermanently ResponseCommon Url deriving (Eq,Show,Generic)
 
 instance HasUrl MovedPermanently where
     url f (MovedPermanently rc u) = MovedPermanently rc <$> f u
 
 -- ** Not Found
 
-data NotFound = NotFound ResponseCommon Payload deriving (Show,Eq)
+data NotFound = NotFound ResponseCommon Payload deriving (Eq,Show,Generic)
 
 instance HasBody NotFound where
     body f (NotFound rc pl) = NotFound rc <$> body f pl
@@ -120,7 +130,7 @@ status (ResponseNotFound {}) = Status 404 "Not Found"
 data ResponseCommon = ResponseCommon
     { _version :: HttpVersion
     , _headers :: Header
-    } deriving (Show,Eq)
+    } deriving (Eq,Show,Generic)
 
 defaultResponseCommon :: ResponseCommon
 defaultResponseCommon = ResponseCommon http11 mempty

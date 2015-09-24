@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveGeneric #-}
 -- | These are the shared data types between "Nero.Request" and "Nero.Response"
 --   modules.
 module Nero.Common
@@ -7,6 +8,8 @@ module Nero.Common
   , HeaderName
   ) where
 
+import GHC.Generics (Generic)
+
 import Nero.Prelude
 
 -- * Version
@@ -14,7 +17,7 @@ import Nero.Prelude
 data HttpVersion = HttpVersion
   { _httpMajor :: Int
   , _httpMinor :: Int
-  } deriving (Show,Eq,Ord)
+  } deriving (Eq,Ord,Show,Generic)
 
 http11 :: HttpVersion
 http11 = HttpVersion 1 1
