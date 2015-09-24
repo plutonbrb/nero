@@ -140,15 +140,18 @@ instance Suffixed Match where
 -- >>> pure "hello" ^? sep "hello"
 -- Just []
 sep :: Text -> Prism' Match Match
+sep "" = prism' id Just
 sep pat = prism'
     (\trg -> case uncons trg of
         Nothing -> pure pat
         Just (h1,t1) -> case uncons t1 of
             Nothing -> pat <| pure h1
-            Just (h2,t2) -> h2 <> pat <> h1 <| t2)
+            Just (h2,t2) -> if h1 == mempty && h2 == mempty
+                               then pat <| trg
+                               else h2 <> pat <> h1 <| t2)
     (uncons >=> \(h1,t) ->
         if pat == h1
-           then Just mempty
+           then Just t
            else breakOn pat h1 <&> \(x,y) -> y <| x <| t)
 
 -- | This is the composition of `match` and `sep`. Use this to avoid

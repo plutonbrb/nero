@@ -67,7 +67,8 @@ test-suite tasty
   hs-source-dirs:      tests
   main-is:             tasty.hs
   ghc-options:         -Wall -threaded
-  other-modules:       Test.Nero.Param
+  other-modules:       Test.Nero.Match
+                       Test.Nero.Param
                        Test.Nero.Payload
                        Test.Nero.Url
   build-depends:       base >= 4.6 && <4.9,

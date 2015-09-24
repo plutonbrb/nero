@@ -1,8 +1,8 @@
 flags: {}
 packages:
 - '.'
-- tasty-lens
 extra-deps:
+- tasty-lens-0.3.1
 - smallcheck-lens-0.3
 - tasty-laws-0.3.1
 - smallcheck-laws-0.3
